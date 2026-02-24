@@ -1,0 +1,81 @@
+{
+    "id": "beginner_email_prize",
+    "title": "You've Won a Prize!",
+    "difficulty": "beginner",
+    "type": "email",
+    "description": "A classic prize-winning phishing email with obvious indicators.",
+    "context": "You receive an unexpected email in your inbox claiming you've won a prize. You did not enter any contests recently.",
+    "content": {
+        "from_name": "Prize Notification Dept.",
+        "from_email": "winner-notify@fr33-prizes.xyz",
+        "to": "you@university.edu",
+        "subject": "CONGRATULATIONS!!! You Have Won $10,000!!!",
+        "body_html": "<p>Dear Valued Winner,</p><p>We are please to infrom you that your email adress has been selected as the WINNER of our International Email Lottery Program!</p><p>You have won the sum of <b>$10,000.00 USD</b>!!!</p><p>To claim your prize, please click the link below and provide your personal details and banking information for immediate transfer:</p><p><a href='http://fr33-prizes.xyz/claim?id=83721'>CLAIM YOUR PRIZE NOW!!!</a></p><p>WARNING: If you do not claim within 24 hours, your prize will be forfeited!</p><p>Regards,<br>Dr. James Morrison<br>International Lottery Commission</p>",
+        "body_text": "Dear Valued Winner,\n\nWe are please to infrom you that your email adress has been selected as the WINNER of our International Email Lottery Program!\n\nYou have won the sum of $10,000.00 USD!!!\n\nTo claim your prize, please click the link below and provide your personal details and banking information for immediate transfer:\n\nCLAIM YOUR PRIZE NOW: http://fr33-prizes.xyz/claim?id=83721\n\nWARNING: If you do not claim within 24 hours, your prize will be forfeited!\n\nRegards,\nDr. James Morrison\nInternational Lottery Commission"
+    },
+    "red_flags": [
+        {
+            "id": "suspicious_domain",
+            "label": "Suspicious sender domain",
+            "detail": "The domain 'fr33-prizes.xyz' uses number substitution and a non-standard TLD — a clear sign of a fraudulent sender."
+        },
+        {
+            "id": "spelling_errors",
+            "label": "Spelling and grammar errors",
+            "detail": "'please' instead of 'pleased', 'infrom' instead of 'inform', 'adress' instead of 'address' — legitimate organizations proofread their communications."
+        },
+        {
+            "id": "urgency",
+            "label": "Artificial urgency",
+            "detail": "The 24-hour deadline pressures you to act without thinking. Scammers use urgency to bypass rational decision-making."
+        },
+        {
+            "id": "excessive_punctuation",
+            "label": "Excessive punctuation and capitalization",
+            "detail": "Multiple exclamation marks, ALL CAPS, and dramatic formatting are classic phishing indicators."
+        },
+        {
+            "id": "asks_personal_info",
+            "label": "Requests personal and banking information",
+            "detail": "Legitimate organizations never ask for banking details via email links."
+        },
+        {
+            "id": "unsolicited_prize",
+            "label": "Unsolicited prize notification",
+            "detail": "You cannot win a lottery you never entered. This is a social engineering tactic."
+        }
+    ],
+    "actions": [
+        {
+            "id": "click_link",
+            "label": "Click the prize link",
+            "is_correct": false,
+            "feedback": "Dangerous! This link leads to a fake website designed to steal your personal and financial information. Never click links in suspicious emails."
+        },
+        {
+            "id": "reply_email",
+            "label": "Reply to ask for more details",
+            "is_correct": false,
+            "feedback": "Replying confirms your email is active and may lead to further social engineering attempts. Do not engage with suspicious senders."
+        },
+        {
+            "id": "report_phishing",
+            "label": "Report as phishing and delete",
+            "is_correct": true,
+            "feedback": "Correct! Reporting the email helps your email provider and IT team protect others. This is the safest response."
+        },
+        {
+            "id": "ignore_delete",
+            "label": "Ignore and delete the email",
+            "is_correct": true,
+            "feedback": "Good instinct! Deleting is safe, though reporting it as phishing is even better since it helps protect others."
+        }
+    ],
+    "learning_objectives": [
+        "Identify suspicious sender domains and email addresses",
+        "Recognize spelling and grammar errors as phishing indicators",
+        "Understand how urgency is used to manipulate victims",
+        "Never provide personal or financial information via email links",
+        "Report phishing emails to help protect the community"
+    ]
+}

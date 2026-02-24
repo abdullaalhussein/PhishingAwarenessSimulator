@@ -1,0 +1,66 @@
+{
+    "id": "beginner_sms_delivery",
+    "title": "Failed Package Delivery",
+    "difficulty": "beginner",
+    "type": "sms",
+    "description": "A fake SMS about a failed delivery with a suspicious tracking link.",
+    "context": "You receive a text message on your phone about a package delivery. You are not currently expecting any deliveries.",
+    "content": {
+        "sender": "+1-555-0199",
+        "message_text": "USPS: Your package could not be delivered due to incomplete address information. Please update your details within 12 hours or the package will be returned. Track here: http://usps-redelivery.track-pkg.co/update?ref=99281"
+    },
+    "red_flags": [
+        {
+            "id": "fake_domain",
+            "label": "Fake tracking domain",
+            "detail": "The real USPS website is usps.com. The link 'usps-redelivery.track-pkg.co' is a lookalike domain designed to appear legitimate."
+        },
+        {
+            "id": "urgency",
+            "label": "12-hour deadline creates urgency",
+            "detail": "USPS does not impose such short deadlines via SMS. This pressure tactic is designed to make you act without thinking."
+        },
+        {
+            "id": "unexpected_message",
+            "label": "Unexpected notification",
+            "detail": "You are not expecting a delivery. Unsolicited messages about packages you didn't order are a common phishing vector."
+        },
+        {
+            "id": "generic_sender",
+            "label": "Unknown phone number",
+            "detail": "USPS uses short codes or their official number for notifications, not random phone numbers."
+        }
+    ],
+    "actions": [
+        {
+            "id": "click_link",
+            "label": "Tap the tracking link",
+            "is_correct": false,
+            "feedback": "Dangerous! This link leads to a phishing site that will ask for your personal details, address, and possibly payment information."
+        },
+        {
+            "id": "call_number",
+            "label": "Call the sender number back",
+            "is_correct": false,
+            "feedback": "Calling back could connect you to a scam call center. Never call numbers from suspicious messages."
+        },
+        {
+            "id": "verify_official",
+            "label": "Go to the official USPS website directly",
+            "is_correct": true,
+            "feedback": "Smart move! Always navigate to official websites by typing the URL directly in your browser, never through links in messages."
+        },
+        {
+            "id": "delete_report",
+            "label": "Delete the message and block the number",
+            "is_correct": true,
+            "feedback": "Correct! Deleting and blocking prevents future contact. You can also forward suspicious SMS to 7726 (SPAM) to report it."
+        }
+    ],
+    "learning_objectives": [
+        "Verify URLs carefully before clicking — look at the actual domain",
+        "Be skeptical of unexpected delivery notifications",
+        "Always go to official websites directly, not through message links",
+        "Report suspicious SMS messages to help carriers block them"
+    ]
+}

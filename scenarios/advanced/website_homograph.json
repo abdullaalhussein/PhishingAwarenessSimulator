@@ -1,0 +1,74 @@
+{
+    "id": "advanced_website_homograph",
+    "title": "Homograph Attack - University Portal",
+    "difficulty": "advanced",
+    "type": "website",
+    "description": "A phishing site using an internationalized domain name (IDN homograph attack) to create a visually identical URL to the university portal.",
+    "context": "You received an email from what appears to be your university's registrar office, informing you that your course registration for next semester is about to be canceled due to an unpaid balance. The email asks you to log in to verify your student account. You click the link and arrive at this page. The URL in the address bar appears to show your university's domain.",
+    "content": {
+        "url": "https://myuniversity.edu (displayed) — actual: https://myuniversіty.edu (Cyrillic 'і' replaces Latin 'i')",
+        "page_title": "MyUniversity - Student Portal Login",
+        "page_html": "<div style='max-width:500px;margin:40px auto;font-family:Arial'><div style='background:#1a3a5c;color:white;padding:20px;text-align:center'><h2>MyUniversity</h2><p>Student Portal</p></div><div style='padding:30px;border:1px solid #ddd'><div style='background:#fff3cd;border:1px solid #ffc107;padding:12px;margin-bottom:20px;border-radius:4px'><strong>Action Required:</strong> Your course registration will be canceled in 48 hours due to an outstanding balance of $1,247.00. Please log in to verify and resolve.</div><label style='font-weight:bold'>Student ID:</label><br><input type='text' style='width:100%;padding:8px;margin:5px 0 15px;border:1px solid #ccc'><br><label style='font-weight:bold'>Password:</label><br><input type='password' style='width:100%;padding:8px;margin:5px 0 15px;border:1px solid #ccc'><br><label style='font-weight:bold'>Date of Birth (for verification):</label><br><input type='date' style='width:100%;padding:8px;margin:5px 0 20px;border:1px solid #ccc'><br><button style='width:100%;padding:12px;background:#1a3a5c;color:white;border:none;font-size:16px'>Sign In & Verify Account</button><p style='font-size:12px;text-align:center;margin-top:15px'><a href='#'>Forgot Password?</a> | <a href='#'>IT Help Desk</a></p></div><div style='text-align:center;padding:10px;font-size:11px;color:#666'>© 2025 MyUniversity. All rights reserved. | Privacy Policy | Terms of Use</div></div>"
+    },
+    "red_flags": [
+        {
+            "id": "homograph_domain",
+            "label": "IDN homograph attack — URL contains look-alike Unicode characters",
+            "detail": "The 'i' in 'university' has been replaced with the Cyrillic character 'і' (U+0456). These look identical in most fonts but resolve to completely different domains. This is called an IDN homograph attack."
+        },
+        {
+            "id": "asks_dob",
+            "label": "Requests date of birth on login page",
+            "detail": "A legitimate university login page requires only your student ID and password. Asking for date of birth is a data harvesting technique."
+        },
+        {
+            "id": "registration_cancellation_threat",
+            "label": "Threat of course cancellation creates high-stakes urgency",
+            "detail": "For a student, losing course registration is a serious threat. This emotional manipulation overrides careful analysis of the page."
+        },
+        {
+            "id": "specific_balance",
+            "label": "Specific dollar amount adds false legitimacy",
+            "detail": "The precise $1,247.00 amount makes the claim feel real. But specificity in a phishing page is just a design choice — attackers know specific numbers are more convincing."
+        },
+        {
+            "id": "email_initiated_login",
+            "label": "Login was initiated from an email link, not bookmarks",
+            "detail": "You arrived at this page by clicking an email link rather than navigating to the portal yourself. Critical logins should always be done via bookmarks or typed URLs."
+        }
+    ],
+    "actions": [
+        {
+            "id": "enter_credentials",
+            "label": "Enter your student ID, password, and date of birth",
+            "is_correct": false,
+            "feedback": "The attacker now has your university credentials AND personal information (DOB). They can access your student records, financial aid, and potentially commit identity fraud."
+        },
+        {
+            "id": "enter_id_only",
+            "label": "Enter just your student ID to check the balance first",
+            "is_correct": false,
+            "feedback": "Even partial information is valuable to attackers. Your student ID alone can be used for social engineering in future attacks against you or the university."
+        },
+        {
+            "id": "navigate_directly",
+            "label": "Close this tab and navigate to the university portal via your bookmarks",
+            "is_correct": true,
+            "feedback": "Excellent security practice! By navigating directly via bookmarks or typing the URL, you bypass any homograph or lookalike domain tricks entirely."
+        },
+        {
+            "id": "inspect_certificate",
+            "label": "Inspect the SSL certificate to verify the actual domain",
+            "is_correct": true,
+            "feedback": "Advanced and effective! Checking the SSL certificate reveals the actual punycode domain (xn--myuniversty-...) which exposes the homograph attack. This is a technique security professionals use."
+        }
+    ],
+    "learning_objectives": [
+        "Understand IDN homograph attacks — visually identical characters from different scripts",
+        "Always navigate to important portals via bookmarks or typed URLs, never email links",
+        "SSL certificates can reveal the true domain behind homograph attacks",
+        "Login pages should never ask for more than username and password",
+        "Modern browsers show punycode for mixed-script domains — learn to check the URL bar",
+        "High-stakes threats (registration cancellation) are used to override careful judgment"
+    ]
+}

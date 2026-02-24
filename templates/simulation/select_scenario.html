@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ difficulty|capitalize }} Scenarios - PhishSim{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">{{ difficulty|capitalize }} Scenarios</li>
+    </ol>
+</nav>
+
+<h2 class="mb-1">
+    {% if difficulty == 'beginner' %}
+    <span class="text-success"><i class="bi bi-shield-check"></i></span>
+    {% elif difficulty == 'intermediate' %}
+    <span class="text-warning"><i class="bi bi-shield-exclamation"></i></span>
+    {% else %}
+    <span class="text-danger"><i class="bi bi-shield-x"></i></span>
+    {% endif %}
+    {{ difficulty|capitalize }} Scenarios
+</h2>
+<p class="text-muted mb-4">
+    {% if difficulty == 'beginner' %}
+    Basic phishing indicators — obvious fake emails, simple malicious links, poor grammar.
+    {% elif difficulty == 'intermediate' %}
+    More realistic scenarios with partial legitimacy, lookalike domains, and contextual pretexts.
+    {% else %}
+    Highly sophisticated spear-phishing simulations including thread hijacking and homograph attacks.
+    {% endif %}
+</p>
+
+{% if scenarios %}
+<div class="row g-3">
+    {% for scenario in scenarios %}
+    <div class="col-md-6">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                    {% if scenario.type == 'email' %}
+                    <span class="badge bg-primary me-2"><i class="bi bi-envelope"></i> Email</span>
+                    {% elif scenario.type == 'sms' %}
+                    <span class="badge bg-info me-2"><i class="bi bi-chat-dots"></i> SMS</span>
+                    {% else %}
+                    <span class="badge bg-secondary me-2"><i class="bi bi-globe"></i> Website</span>
+                    {% endif %}
+                </div>
+                <h5 class="card-title">{{ scenario.title }}</h5>
+                <p class="card-text text-muted small">{{ scenario.description }}</p>
+            </div>
+            <div class="card-footer bg-transparent">
+                <form method="POST" action="{{ url_for('simulation.start') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="scenario_id" value="{{ scenario.id }}">
+                    <button type="submit" class="btn btn-outline-primary btn-sm w-100">
+                        <i class="bi bi-play-circle"></i> Start Simulation
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center text-muted py-5">
+    <i class="bi bi-folder2-open" style="font-size: 2rem;"></i>
+    <p class="mt-2">No scenarios available for this difficulty level yet.</p>
+</div>
+{% endif %}
+{% endblock %}

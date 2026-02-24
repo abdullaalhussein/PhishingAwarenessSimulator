@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Progress Report - PhishSim{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/simulation.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('report.report_list') }}">Reports</a></li>
+        <li class="breadcrumb-item active">Progress</li>
+    </ol>
+</nav>
+
+<h2 class="mb-4"><i class="bi bi-graph-up"></i> My Progress Report</h2>
+
+<!-- Summary Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card p-3 text-center">
+            <div class="stat-value text-primary">{{ stats.total_sessions }}</div>
+            <div class="stat-label">Total Sessions</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card p-3 text-center">
+            <div class="stat-value text-success">{{ stats.completed_sessions }}</div>
+            <div class="stat-label">Completed</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card p-3 text-center">
+            <div class="stat-value text-info">{{ stats.avg_score if stats.avg_score is not none else '—' }}{% if stats.avg_score is not none %}%{% endif %}</div>
+            <div class="stat-label">Avg Score</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card p-3 text-center">
+            <div class="stat-value text-warning">{{ stats.accuracy_rate if stats.accuracy_rate is not none else '—' }}{% if stats.accuracy_rate is not none %}%{% endif %}</div>
+            <div class="stat-label">Action Accuracy</div>
+        </div>
+    </div>
+</div>
+
+<!-- Time Spent -->
+{% if stats.total_time_spent > 0 %}
+<div class="alert alert-light border mb-4">
+    <i class="bi bi-clock-history"></i>
+    <strong>Total time in simulations:</strong>
+    {% set t = stats.total_time_spent %}
+    {% if t >= 3600 %}
+    {{ t // 3600 }}h {{ (t % 3600) // 60 }}m
+    {% elif t >= 60 %}
+    {{ t // 60 }}m {{ t % 60 }}s
+    {% else %}
+    {{ t }}s
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Charts -->
+<div class="row g-4 mb-4">
+    {% if charts.score_distribution %}
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><h6 class="mb-0">Score Distribution</h6></div>
+            <div class="card-body text-center">
+                <img src="{{ charts.score_distribution }}" alt="Score Distribution Chart" class="img-fluid">
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if charts.difficulty_comparison %}
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><h6 class="mb-0">Performance by Difficulty</h6></div>
+            <div class="card-body text-center">
+                <img src="{{ charts.difficulty_comparison }}" alt="Difficulty Comparison Chart" class="img-fluid">
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if charts.improvement_trend %}
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><h6 class="mb-0">Score Trend Over Time</h6></div>
+            <div class="card-body text-center">
+                <img src="{{ charts.improvement_trend }}" alt="Improvement Trend Chart" class="img-fluid">
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Scores by Difficulty -->
+{% if stats.scores_by_difficulty %}
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-white"><h5 class="mb-0"><i class="bi bi-bar-chart"></i> Breakdown by Difficulty</h5></div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Difficulty</th>
+                        <th>Sessions</th>
+                        <th>Average</th>
+                        <th>Best</th>
+                        <th>Progress</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for diff in ['beginner', 'intermediate', 'advanced'] %}
+                    {% if diff in stats.scores_by_difficulty %}
+                    {% set d = stats.scores_by_difficulty[diff] %}
+                    <tr>
+                        <td>
+                            <span class="badge {% if diff == 'beginner' %}bg-success{% elif diff == 'intermediate' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                {{ diff|capitalize }}
+                            </span>
+                        </td>
+                        <td>{{ d.count }}</td>
+                        <td class="fw-bold">{{ d.avg }}%</td>
+                        <td>{{ d.best }}%</td>
+                        <td style="width: 200px;">
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar {% if d.avg >= 90 %}bg-success{% elif d.avg >= 70 %}bg-info{% elif d.avg >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
+                                     style="width: {{ d.avg }}%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Common Mistakes -->
+{% if stats.common_mistakes %}
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-white"><h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Common Mistakes</h5></div>
+    <div class="card-body">
+        {% for mistake in stats.common_mistakes %}
+        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+            <span><i class="bi bi-x-circle text-danger"></i> {{ mistake.action|replace('_', ' ')|title }}</span>
+            <span class="badge bg-secondary">{{ mistake.count }} time{{ 's' if mistake.count > 1 else '' }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if not stats.completed_sessions %}
+<div class="text-center text-muted py-5">
+    <i class="bi bi-graph-up-arrow" style="font-size: 2rem;"></i>
+    <p class="mt-2">Complete some simulations to see your progress charts and analytics.</p>
+    <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary mt-2">Start a Simulation</a>
+</div>
+{% endif %}
+
+<div class="d-flex justify-content-between mb-4">
+    <a href="{{ url_for('report.report_list') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> All Reports
+    </a>
+    <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary">
+        <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+</div>
+{% endblock %}

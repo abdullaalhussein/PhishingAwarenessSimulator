@@ -1,0 +1,68 @@
+{
+    "id": "intermediate_website_office365",
+    "title": "Microsoft 365 Login Portal",
+    "difficulty": "intermediate",
+    "type": "website",
+    "description": "A well-crafted fake Microsoft 365 login page used to harvest corporate credentials.",
+    "context": "You received an email saying a colleague shared a document with you via OneDrive. Clicking the 'View Document' button brought you to this login page. The email seemed to come from a known colleague.",
+    "content": {
+        "url": "https://login.microsoftonline-auth.com/common/oauth2/authorize",
+        "page_title": "Sign in to your account",
+        "page_html": "<div style='max-width:440px;margin:80px auto;font-family:Segoe UI,Arial'><img src='microsoft-logo.png' style='width:108px' alt='Microsoft'><h2 style='font-weight:400;font-size:24px'>Sign in</h2><input type='email' style='width:100%;padding:8px;border:1px solid #666;margin-bottom:16px;font-size:15px' placeholder='Email, phone, or Skype'><div style='text-align:right'><span style='color:#0067b8;font-size:13px;cursor:pointer'>Can't access your account?</span></div><div style='margin-top:20px;text-align:right'><button style='background:#0067b8;color:white;border:none;padding:8px 20px;font-size:15px'>Next</button></div><div style='margin-top:30px;font-size:12px;color:#666'>No account? <a href='#' style='color:#0067b8'>Create one!</a></div></div>"
+    },
+    "red_flags": [
+        {
+            "id": "lookalike_domain",
+            "label": "Domain is microsoftonline-auth.com, not microsoftonline.com",
+            "detail": "Microsoft's real login domain is 'login.microsoftonline.com'. The extra '-auth' creates a different domain entirely — 'microsoftonline-auth.com' is attacker-controlled."
+        },
+        {
+            "id": "unsolicited_share",
+            "label": "Unexpected document share triggered the login",
+            "detail": "If you were already logged into Microsoft 365, you wouldn't need to log in again to view a shared document. Being redirected to a login is suspicious."
+        },
+        {
+            "id": "url_path_mimicry",
+            "label": "URL path mimics real OAuth flow",
+            "detail": "The '/common/oauth2/authorize' path is copied from Microsoft's real auth flow to make the URL look more convincing."
+        },
+        {
+            "id": "no_org_branding",
+            "label": "Missing organization branding",
+            "detail": "Most companies configure custom branding on their Microsoft 365 login page. A generic Microsoft page when logging into work resources is unusual."
+        }
+    ],
+    "actions": [
+        {
+            "id": "enter_credentials",
+            "label": "Enter your work email and password",
+            "is_correct": false,
+            "feedback": "Your corporate credentials are now compromised. The attacker can access your email, files, and potentially pivot to other internal systems."
+        },
+        {
+            "id": "enter_personal_email",
+            "label": "Enter your personal email instead",
+            "is_correct": false,
+            "feedback": "Now your personal Microsoft account is compromised too. Any credentials entered on a phishing page go directly to the attacker."
+        },
+        {
+            "id": "check_url_close",
+            "label": "Check the URL, recognize it's fake, and close the tab",
+            "is_correct": true,
+            "feedback": "Well done! Checking the URL bar is one of the most effective defenses against phishing websites. The domain gives it away."
+        },
+        {
+            "id": "contact_colleague",
+            "label": "Contact the colleague who shared the document via a separate channel",
+            "is_correct": true,
+            "feedback": "Excellent! Verifying with the sender through a separate channel (chat, phone) confirms whether the share was legitimate. Their account may be compromised."
+        }
+    ],
+    "learning_objectives": [
+        "Carefully inspect login page URLs — especially for Microsoft/Google/corporate portals",
+        "Understand domain structure: 'microsoftonline-auth.com' is NOT 'microsoftonline.com'",
+        "Be suspicious of unexpected login prompts when you're already authenticated",
+        "Verify shared documents through separate communication channels",
+        "Compromised credentials can give attackers access to entire corporate networks"
+    ]
+}

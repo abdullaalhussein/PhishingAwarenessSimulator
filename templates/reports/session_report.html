@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Report - {{ scenario.title }} - PhishSim{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/simulation.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('report.report_list') }}">Reports</a></li>
+        <li class="breadcrumb-item active">{{ scenario.title }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ scenario.title }}</h2>
+    <a href="{{ url_for('report.export_report', session_id=breakdown.session_id) }}" class="btn btn-outline-secondary">
+        <i class="bi bi-download"></i> Export HTML
+    </a>
+</div>
+
+<div class="mb-3">
+    <span class="badge {% if scenario.difficulty == 'beginner' %}bg-success{% elif scenario.difficulty == 'intermediate' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+        {{ scenario.difficulty|capitalize }}
+    </span>
+    <span class="badge bg-secondary">
+        {% if scenario.type == 'email' %}<i class="bi bi-envelope"></i>{% elif scenario.type == 'sms' %}<i class="bi bi-chat-dots"></i>{% else %}<i class="bi bi-globe"></i>{% endif %}
+        {{ scenario.type|upper }}
+    </span>
+    <span class="text-muted small ms-2">{{ breakdown.started_at }}</span>
+</div>
+
+{% if breakdown.report %}
+{% set report = breakdown.report %}
+
+<!-- Score -->
+<div class="text-center my-4">
+    {% set pct = report.percentage %}
+    <div class="score-circle {% if pct >= 90 %}score-excellent{% elif pct >= 70 %}score-good{% elif pct >= 50 %}score-moderate{% else %}score-poor{% endif %}">
+        <div class="score-value">{{ pct|round(0)|int }}%</div>
+        <div class="score-label">Score</div>
+    </div>
+    <p class="text-muted">{{ report.total_score|round(0)|int }} / {{ report.max_score|round(0)|int }} points</p>
+</div>
+
+<!-- Stats Grid -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card p-3 text-center shadow-sm">
+            <i class="bi bi-hand-index fs-4 text-primary"></i>
+            <div class="fw-bold mt-1">Decision</div>
+            <div class="mt-1">
+                {% if breakdown.main_action and breakdown.main_action.is_correct %}
+                <span class="text-success"><i class="bi bi-check-circle-fill"></i> Correct</span>
+                {% else %}
+                <span class="text-danger"><i class="bi bi-x-circle-fill"></i> Incorrect</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 text-center shadow-sm">
+            <i class="bi bi-flag fs-4 text-danger"></i>
+            <div class="fw-bold mt-1">Red Flags</div>
+            <div class="mt-1">
+                <span class="fs-5 fw-bold">{{ report.red_flags_identified }}</span>
+                <span class="text-muted">/ {{ report.red_flags_total }}</span>
+            </div>
+            <div class="progress mt-2" style="height: 6px;">
+                <div class="progress-bar bg-danger" style="width: {{ (report.red_flags_identified / report.red_flags_total * 100)|round(0) if report.red_flags_total > 0 else 0 }}%"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 text-center shadow-sm">
+            <i class="bi bi-stopwatch fs-4 text-info"></i>
+            <div class="fw-bold mt-1">Time Taken</div>
+            <div class="fs-5 fw-bold mt-1">
+                {% set t = report.time_taken_seconds %}
+                {% if t < 60 %}{{ t }}s{% else %}{{ t // 60 }}m {{ t % 60 }}s{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-white"><h5 class="mb-0"><i class="bi bi-chat-square-text"></i> Feedback</h5></div>
+    <div class="card-body">
+        {% for line in report.feedback_summary.split('\n') %}
+            {% if line.strip().startswith('  - ') %}
+                <div class="ms-3 text-muted small">{{ line.strip()[2:] }}</div>
+            {% elif line.strip().startswith('Missed red flags:') %}
+                <p class="fw-bold mt-3 mb-1 text-danger"><i class="bi bi-exclamation-triangle"></i> {{ line }}</p>
+            {% elif line.strip() %}
+                <p class="mb-2">{{ line }}</p>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Red Flags -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-white"><h5 class="mb-0"><i class="bi bi-flag"></i> Red Flags Breakdown</h5></div>
+    <div class="card-body">
+        {% for flag in scenario.red_flags %}
+        <div class="red-flag-item mb-2">
+            <div class="flag-label">
+                {% if flag.label in report.feedback_summary %}
+                <i class="bi bi-x-circle text-danger"></i>
+                {% else %}
+                <i class="bi bi-check-circle text-success"></i>
+                {% endif %}
+                {{ flag.label }}
+            </div>
+            <div class="flag-detail">{{ flag.detail }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Learning Objectives -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-white"><h5 class="mb-0"><i class="bi bi-lightbulb"></i> Learning Objectives</h5></div>
+    <div class="card-body">
+        {% for obj in scenario.learning_objectives %}
+        <div class="learning-item"><i class="bi bi-mortarboard text-primary"></i> {{ obj }}</div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="d-flex justify-content-between mb-4">
+    <a href="{{ url_for('report.report_list') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> All Reports
+    </a>
+    <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary">
+        <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,610 @@
+/* =============================================
+   PhishSim — Simulation Styles
+   ============================================= */
+
+/* ===== Timer ===== */
+.sim-timer {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #212529;
+    color: #0dcaf0;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.sim-timer .bi { font-size: 0.9rem; }
+
+.sim-timer.timer-normal { color: #ffc107; }
+.sim-timer.timer-slow { color: #dc3545; animation: pulse 1.5s infinite; }
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* ===== Progress Stages ===== */
+.progress-stages {
+    display: flex;
+    gap: 0;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.progress-stage {
+    flex: 1;
+    text-align: center;
+    padding: 12px 8px;
+    font-size: 13px;
+    font-weight: 600;
+    border-bottom: 3px solid #dee2e6;
+    color: #adb5bd;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.progress-stage.active {
+    border-bottom-color: #0d6efd;
+    color: #0d6efd;
+}
+
+.progress-stage.done {
+    border-bottom-color: #198754;
+    color: #198754;
+}
+
+.progress-stage .stage-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #dee2e6;
+    color: #fff;
+    font-size: 12px;
+    margin-right: 4px;
+    transition: background 0.3s;
+}
+
+.progress-stage.active .stage-num { background: #0d6efd; }
+.progress-stage.done .stage-num { background: #198754; }
+
+/* ===== Briefing Card ===== */
+.briefing-card {
+    max-width: 650px;
+    margin: 0 auto;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.briefing-header {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: #fff;
+    padding: 30px;
+    text-align: center;
+}
+
+.briefing-header h3 { margin-bottom: 10px; }
+
+.briefing-body {
+    padding: 30px;
+}
+
+.briefing-context {
+    background: #f0f7ff;
+    border-left: 4px solid #0d6efd;
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.briefing-meta {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.briefing-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #555;
+}
+
+/* ===== Email Renderer ===== */
+.email-client {
+    max-width: 720px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.email-toolbar {
+    background: #f6f8fa;
+    border-bottom: 1px solid #e1e4e8;
+    padding: 8px 16px;
+    display: flex;
+    gap: 8px;
+}
+
+.email-toolbar-btn {
+    background: none;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: #555;
+    cursor: default;
+}
+
+.email-header-section {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.email-subject-line {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #1a1a1a;
+}
+
+.email-sender-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.email-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #6c63ff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.email-sender-info {
+    flex: 1;
+}
+
+.email-sender-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.email-sender-addr {
+    font-size: 12px;
+    color: #666;
+}
+
+.email-to-line {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+}
+
+.email-timestamp {
+    font-size: 12px;
+    color: #888;
+    white-space: nowrap;
+}
+
+.email-body-section {
+    padding: 24px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #333;
+}
+
+/* ===== SMS Renderer ===== */
+.phone-frame {
+    max-width: 380px;
+    margin: 0 auto;
+    border: 3px solid #1a1a1a;
+    border-radius: 36px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.phone-notch {
+    background: #000;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.phone-notch-pill {
+    width: 80px;
+    height: 6px;
+    background: #333;
+    border-radius: 3px;
+}
+
+.phone-status-bar {
+    background: #000;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 20px 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.sms-screen {
+    background: #fff;
+    min-height: 300px;
+    padding: 16px;
+}
+
+.sms-contact-header {
+    text-align: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 16px;
+}
+
+.sms-contact-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    margin: 0 auto 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #888;
+}
+
+.sms-contact-name {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.sms-bubble {
+    background: #e9e9eb;
+    border-radius: 18px 18px 18px 6px;
+    padding: 10px 16px;
+    font-size: 15px;
+    line-height: 1.5;
+    max-width: 90%;
+    word-wrap: break-word;
+}
+
+.sms-time {
+    text-align: center;
+    font-size: 11px;
+    color: #999;
+    margin-top: 8px;
+}
+
+.phone-home-bar {
+    background: #000;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.phone-home-indicator {
+    width: 100px;
+    height: 4px;
+    background: #555;
+    border-radius: 2px;
+}
+
+/* ===== Website/Browser Renderer ===== */
+.browser-frame {
+    max-width: 720px;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.browser-title-bar {
+    background: #e8eaed;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.browser-dots {
+    display: flex;
+    gap: 6px;
+}
+
+.browser-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.browser-dot.red { background: #ff5f57; }
+.browser-dot.yellow { background: #febc2e; }
+.browser-dot.green { background: #28c840; }
+
+.browser-tab {
+    background: #fff;
+    border-radius: 8px 8px 0 0;
+    padding: 4px 16px;
+    font-size: 12px;
+    color: #555;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-left: 8px;
+}
+
+.browser-address-bar {
+    background: #f1f3f4;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+.browser-nav-btns {
+    display: flex;
+    gap: 6px;
+    color: #999;
+    font-size: 14px;
+}
+
+.browser-url-box {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.browser-url-box .lock-icon {
+    color: #dc3545;
+    font-size: 12px;
+}
+
+.browser-url-box.secure .lock-icon {
+    color: #198754;
+}
+
+.browser-url-domain {
+    font-weight: 600;
+}
+
+.browser-url-path {
+    color: #666;
+}
+
+.browser-page-content {
+    padding: 24px;
+    min-height: 200px;
+}
+
+/* ===== Action Cards (Enhanced) ===== */
+.action-card {
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: block;
+    user-select: none;
+}
+
+.action-card:hover {
+    border-color: #0d6efd;
+    background-color: #f0f6ff;
+    transform: translateX(4px);
+}
+
+.action-card.selected {
+    border-color: #0d6efd;
+    background-color: #e7f1ff;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+.action-card input[type="radio"] { display: none; }
+
+.action-card .action-label {
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.action-card.selected .action-label {
+    font-weight: 600;
+}
+
+/* ===== Red Flag Cards ===== */
+.flag-card {
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    user-select: none;
+}
+
+.flag-card:hover {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+}
+
+.flag-card.selected {
+    border-color: #dc3545;
+    background-color: #ffeaec;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+}
+
+/* ===== Context Card ===== */
+.context-card {
+    background: #e8f4f8;
+    border-left: 4px solid #17a2b8;
+    padding: 15px 20px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 25px;
+}
+
+/* ===== Score Circle (Enhanced) ===== */
+.score-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-weight: 700;
+    position: relative;
+}
+
+.score-excellent { background: #d1e7dd; color: #0f5132; border: 5px solid #198754; }
+.score-good { background: #cff4fc; color: #055160; border: 5px solid #0dcaf0; }
+.score-moderate { background: #fff3cd; color: #664d03; border: 5px solid #ffc107; }
+.score-poor { background: #f8d7da; color: #842029; border: 5px solid #dc3545; }
+
+.score-value {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.score-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+
+/* ===== Red Flag Review Items ===== */
+.red-flag-item {
+    padding: 12px 16px;
+    border-left: 4px solid #dc3545;
+    background: #fff;
+    margin-bottom: 10px;
+    border-radius: 0 8px 8px 0;
+    transition: all 0.2s;
+}
+
+.red-flag-item.identified {
+    border-left-color: #198754;
+    background: #f0fdf4;
+}
+
+.red-flag-item .flag-label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.red-flag-item .flag-detail {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* ===== Learning Objectives ===== */
+.learning-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+}
+
+.learning-item:last-child { border-bottom: none; }
+
+/* ===== Animations ===== */
+.fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+}
+
+/* ===== Toast Notifications ===== */
+#toast-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.toast-notification {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    max-width: 350px;
+}
+
+.toast-notification.show {
+    transform: translateX(0);
+}
+
+.toast-info { background: #cff4fc; color: #055160; border-left: 4px solid #0dcaf0; }
+.toast-success { background: #d1e7dd; color: #0f5132; border-left: 4px solid #198754; }
+.toast-danger { background: #f8d7da; color: #842029; border-left: 4px solid #dc3545; }
+
+/* ===== Section Headers ===== */
+.sim-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.sim-section-header h5 { margin: 0; }

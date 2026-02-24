@@ -1,0 +1,67 @@
+{
+    "id": "intermediate_sms_bank_alert",
+    "title": "Suspicious Bank Transaction Alert",
+    "difficulty": "intermediate",
+    "type": "sms",
+    "description": "A realistic-looking bank fraud alert SMS that uses partial account details to appear legitimate.",
+    "context": "You receive a text message that appears to be from your bank's fraud department. You do have an account with Chase bank. You made a small purchase at a grocery store earlier today.",
+    "content": {
+        "sender": "CHASE",
+        "message_text": "Chase Fraud Alert: A transaction of $847.32 was attempted on your card ending in **4891 at ELECTRONICS STORE on 02/24. If this was NOT you, reply YES to block your card or visit: https://chase-secure.alert-verify.com/fraud"
+    },
+    "red_flags": [
+        {
+            "id": "fake_domain",
+            "label": "Link domain is not chase.com",
+            "detail": "The link goes to 'chase-secure.alert-verify.com' — this is NOT a Chase domain. The real Chase fraud center is at chase.com. The subdomain 'chase-secure' is a deceptive trick."
+        },
+        {
+            "id": "reply_to_block",
+            "label": "Asks you to reply to block card",
+            "detail": "Real Chase fraud alerts may ask you to reply YES/NO, but they never include links. The combination of reply AND link is suspicious."
+        },
+        {
+            "id": "card_ending_digits",
+            "label": "Card digits may not match yours",
+            "detail": "Attackers use random last-four digits hoping they match. Verify the digits against your actual card before reacting."
+        },
+        {
+            "id": "emotional_trigger",
+            "label": "Large unauthorized transaction creates panic",
+            "detail": "The $847.32 charge is designed to trigger an emotional response. Panic makes you more likely to click without thinking."
+        }
+    ],
+    "actions": [
+        {
+            "id": "click_link",
+            "label": "Click the link to verify the transaction",
+            "is_correct": false,
+            "feedback": "The link leads to a phishing site designed to harvest your Chase login credentials and personal details. The site will look nearly identical to Chase's real website."
+        },
+        {
+            "id": "reply_yes",
+            "label": "Reply YES to block the card",
+            "is_correct": false,
+            "feedback": "Replying confirms your number is active and associated with a Chase account. The attacker may follow up with a phone call posing as Chase support."
+        },
+        {
+            "id": "call_chase_direct",
+            "label": "Call Chase directly using the number on your card",
+            "is_correct": true,
+            "feedback": "Perfect response! Always call your bank using the phone number on the back of your physical card or from the official app. Never use numbers or links from text messages."
+        },
+        {
+            "id": "check_app",
+            "label": "Open the Chase app to check recent transactions",
+            "is_correct": true,
+            "feedback": "Smart approach! Checking your official banking app lets you verify transactions directly without interacting with the suspicious message."
+        }
+    ],
+    "learning_objectives": [
+        "Verify fraud alerts through official channels — call the number on your card",
+        "Subdomain tricks: 'chase-secure.alert-verify.com' is NOT a Chase domain",
+        "Panic-inducing amounts are a social engineering tactic",
+        "Never click links in SMS fraud alerts — use the official app instead",
+        "Check if the card digits in the message actually match your card"
+    ]
+}

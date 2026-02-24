@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}All Sessions - Admin - PhishSim{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
+        <li class="breadcrumb-item active">Sessions</li>
+    </ol>
+</nav>
+
+<h2 class="mb-4"><i class="bi bi-collection"></i> All Simulation Sessions</h2>
+
+<!-- Filters -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small text-muted">Difficulty</label>
+                <select name="difficulty" class="form-select form-select-sm">
+                    <option value="">All Difficulties</option>
+                    <option value="beginner" {% if filter_difficulty == 'beginner' %}selected{% endif %}>Beginner</option>
+                    <option value="intermediate" {% if filter_difficulty == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                    <option value="advanced" {% if filter_difficulty == 'advanced' %}selected{% endif %}>Advanced</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted">Status</label>
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">All Statuses</option>
+                    <option value="completed" {% if filter_status == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="in_progress" {% if filter_status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                <a href="{{ url_for('admin.sessions') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Sessions Table -->
+{% if session_data %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>Scenario</th>
+                <th>Difficulty</th>
+                <th>Status</th>
+                <th>Score</th>
+                <th>Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in session_data %}
+            <tr>
+                <td class="text-muted">{{ item.session.id }}</td>
+                <td>{{ item.username }}</td>
+                <td>{{ item.scenario_title }}</td>
+                <td>
+                    {% if item.session.difficulty == 'beginner' %}
+                    <span class="badge bg-success">Beginner</span>
+                    {% elif item.session.difficulty == 'intermediate' %}
+                    <span class="badge bg-warning text-dark">Intermediate</span>
+                    {% else %}
+                    <span class="badge bg-danger">Advanced</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.session.status == 'completed' %}
+                    <span class="badge bg-primary">Completed</span>
+                    {% else %}
+                    <span class="badge bg-secondary">In Progress</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.session.score is not none %}
+                    <span class="fw-bold {% if item.session.score >= 90 %}text-success{% elif item.session.score >= 70 %}text-info{% elif item.session.score >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                        {{ '%.0f'|format(item.session.score) }}%
+                    </span>
+                    {% else %}—{% endif %}
+                </td>
+                <td class="text-muted small">{{ item.session.started_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    {% if item.session.status == 'completed' %}
+                    <a href="{{ url_for('admin.session_detail', session_id=item.session.id) }}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<p class="text-muted small">Showing {{ session_data|length }} session(s).</p>
+{% else %}
+<div class="text-center text-muted py-5">
+    <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+    <p class="mt-2">No sessions match the selected filters.</p>
+</div>
+{% endif %}
+{% endblock %}

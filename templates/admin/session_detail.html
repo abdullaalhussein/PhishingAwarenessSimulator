@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Session #{{ session.id }} - Admin - PhishSim{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/simulation.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.sessions') }}">Sessions</a></li>
+        <li class="breadcrumb-item active">Session #{{ session.id }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Session #{{ session.id }}</h2>
+    <a href="{{ url_for('admin.student_detail', user_id=user.id) }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-person"></i> View Student: {{ user.username }}
+    </a>
+</div>
+
+<div class="mb-3">
+    {% if scenario %}
+    <h4>{{ scenario.title }}</h4>
+    {% endif %}
+    <span class="badge {% if breakdown.difficulty == 'beginner' %}bg-success{% elif breakdown.difficulty == 'intermediate' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+        {{ breakdown.difficulty|capitalize }}
+    </span>
+    <span class="badge bg-secondary">{{ breakdown.scenario_id }}</span>
+    <span class="text-muted small ms-2">Started: {{ breakdown.started_at }}</span>
+    {% if breakdown.completed_at %}
+    <span class="text-muted small ms-2">Completed: {{ breakdown.completed_at }}</span>
+    {% endif %}
+</div>
+
+{% if breakdown.report %}
+{% set rpt = breakdown.report %}
+
+<!-- Score -->
+<div class="text-center my-4">
+    {% set pct = rpt.percentage %}
+    <div class="score-circle {% if pct >= 90 %}score-excellent{% elif pct >= 70 %}score-good{% elif pct >= 50 %}score-moderate{% else %}score-poor{% endif %}">
+        <div class="score-value">{{ pct|round(0)|int }}%</div>
+        <div class="score-label">Score</div>
+    </div>
+    <p class="text-muted">{{ rpt.total_score|round(0)|int }} / {{ rpt.max_score|round(0)|int }} points</p>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card p-3 text-center shadow-sm">
+            <div class="fw-bold">Decision</div>
+            {% if breakdown.main_action and breakdown.main_action.is_correct %}
+            <span class="text-success"><i class="bi bi-check-circle-fill"></i> Correct</span>
+            {% else %}
+            <span class="text-danger"><i class="bi bi-x-circle-fill"></i> Incorrect</span>
+            {% endif %}
+            {% if breakdown.main_action %}
+            <div class="text-muted small mt-1">{{ breakdown.main_action.action_id|replace('_', ' ')|title }}</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 text-center shadow-sm">
+            <div class="fw-bold">Red Flags</div>
+            <div class="fs-5 fw-bold">{{ rpt.red_flags_identified }} / {{ rpt.red_flags_total }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 text-center shadow-sm">
+            <div class="fw-bold">Time</div>
+            {% set t = rpt.time_taken_seconds %}
+            <div class="fs-5 fw-bold">{% if t < 60 %}{{ t }}s{% else %}{{ t // 60 }}m {{ t % 60 }}s{% endif %}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-white"><h5 class="mb-0">Feedback Summary</h5></div>
+    <div class="card-body">
+        {% for line in rpt.feedback_summary.split('\n') %}
+            {% if line.strip() %}
+            <p class="mb-1">{{ line }}</p>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info">This session has not been completed yet.</div>
+{% endif %}
+
+{% if scenario %}
+<!-- Red Flags Reference -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-white"><h5 class="mb-0">Scenario Red Flags</h5></div>
+    <div class="card-body">
+        {% for flag in scenario.red_flags %}
+        <div class="red-flag-item mb-2">
+            <div class="flag-label">{{ flag.label }}</div>
+            <div class="flag-detail">{{ flag.detail }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Class Reports - Admin - PhishSim{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
+        <li class="breadcrumb-item active">Class Reports</li>
+    </ol>
+</nav>
+
+<h2 class="mb-4"><i class="bi bi-bar-chart-line"></i> Class-Wide Analytics</h2>
+
+<!-- Summary -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card p-3 text-center">
+            <div class="stat-value text-primary">{{ stats.total_users }}</div>
+            <div class="stat-label">Students</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card p-3 text-center">
+            <div class="stat-value text-success">{{ stats.completed_sessions }}</div>
+            <div class="stat-label">Completed Sessions</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card p-3 text-center">
+            <div class="stat-value text-warning">{{ stats.completion_rate }}%</div>
+            <div class="stat-label">Completion Rate</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card p-3 text-center">
+            {% set total_score = stats.avg_score_by_difficulty.values()|list %}
+            <div class="stat-value text-info">
+                {% if total_score %}{{ (total_score|sum / total_score|length)|round(1) }}{% else %}—{% endif %}
+            </div>
+            <div class="stat-label">Sessions Total</div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row g-3 mb-4">
+    {% if charts.score_distribution %}
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><h6 class="mb-0">Score Distribution</h6></div>
+            <div class="card-body text-center">
+                <img src="{{ charts.score_distribution }}" alt="Score Distribution" class="img-fluid">
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if charts.difficulty_comparison %}
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><h6 class="mb-0">Average by Difficulty</h6></div>
+            <div class="card-body text-center">
+                <img src="{{ charts.difficulty_comparison }}" alt="Difficulty Comparison" class="img-fluid">
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if charts.time_by_difficulty %}
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><h6 class="mb-0">Avg Time by Difficulty</h6></div>
+            <div class="card-body text-center">
+                <img src="{{ charts.time_by_difficulty }}" alt="Time by Difficulty" class="img-fluid">
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Avg Scores by Difficulty -->
+{% if stats.avg_score_by_difficulty %}
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-white"><h5 class="mb-0">Average Score by Difficulty</h5></div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead><tr><th>Difficulty</th><th>Avg Score</th><th>Visual</th></tr></thead>
+                <tbody>
+                    {% for diff in ['beginner', 'intermediate', 'advanced'] %}
+                    {% if diff in stats.avg_score_by_difficulty %}
+                    <tr>
+                        <td>
+                            <span class="badge {% if diff == 'beginner' %}bg-success{% elif diff == 'intermediate' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                {{ diff|capitalize }}
+                            </span>
+                        </td>
+                        <td class="fw-bold">{{ stats.avg_score_by_difficulty[diff] }}%</td>
+                        <td style="width: 40%;">
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar {% if stats.avg_score_by_difficulty[diff] >= 70 %}bg-success{% elif stats.avg_score_by_difficulty[diff] >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
+                                     style="width: {{ stats.avg_score_by_difficulty[diff] }}%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Student Rankings -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-white"><h5 class="mb-0"><i class="bi bi-trophy"></i> Student Rankings</h5></div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>Rank</th><th>Student</th><th>Sessions</th><th>Avg Score</th></tr></thead>
+            <tbody>
+                {% for r in rankings %}
+                <tr>
+                    <td>
+                        {% if loop.index <= 3 %}
+                        <span class="text-warning"><i class="bi bi-trophy-fill"></i></span>
+                        {% endif %}
+                        {{ loop.index }}
+                    </td>
+                    <td><a href="{{ url_for('admin.student_detail', user_id=r.user_id) }}">{{ r.username }}</a></td>
+                    <td>{{ r.sessions_completed }}</td>
+                    <td>
+                        <span class="fw-bold {% if r.avg_score >= 90 %}text-success{% elif r.avg_score >= 70 %}text-info{% elif r.avg_score >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ r.avg_score }}%
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not rankings %}
+                <tr><td colspan="4" class="text-center text-muted py-3">No completed sessions yet.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

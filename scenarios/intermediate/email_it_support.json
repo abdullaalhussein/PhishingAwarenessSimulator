@@ -1,0 +1,76 @@
+{
+    "id": "intermediate_email_it_support",
+    "title": "IT Department Password Reset",
+    "difficulty": "intermediate",
+    "type": "email",
+    "description": "A convincing email from the IT department requesting a mandatory password update through a lookalike portal.",
+    "context": "You work at a company that recently announced it would be upgrading its security systems. You receive this email during business hours on a Monday morning.",
+    "content": {
+        "from_name": "IT Security Team",
+        "from_email": "security@company-itsupport.com",
+        "to": "you@company.com",
+        "subject": "Action Required: Mandatory Password Update - Security Compliance",
+        "body_html": "<p>Dear Employee,</p><p>As part of our ongoing security infrastructure upgrade (ref: SEC-2024-0892), all employees are required to update their network passwords by end of business today.</p><p>This is a mandatory security compliance requirement. Failure to update your password may result in temporary account suspension during the migration window.</p><p>Please use the secure portal below to update your credentials:</p><p><a href='https://company-itsupport.com/password-reset'>https://company-itsupport.com/password-reset</a></p><p>If you experience any issues, contact the Help Desk at ext. 4500.</p><p>Thank you for your cooperation.</p><p>Best regards,<br>Michael Chen<br>Information Security Analyst<br>IT Security Team<br>Extension: 4502</p><p style='font-size:11px;color:#666'>This message is confidential and intended solely for the addressee. If you received this in error, please delete it immediately.</p>",
+        "body_text": "Dear Employee,\n\nAs part of our ongoing security infrastructure upgrade (ref: SEC-2024-0892), all employees are required to update their network passwords by end of business today.\n\nThis is a mandatory security compliance requirement. Failure to update your password may result in temporary account suspension during the migration window.\n\nPlease use the secure portal below to update your credentials:\nhttps://company-itsupport.com/password-reset\n\nIf you experience any issues, contact the Help Desk at ext. 4500.\n\nThank you for your cooperation.\n\nBest regards,\nMichael Chen\nInformation Security Analyst\nIT Security Team\nExtension: 4502\n\nThis message is confidential and intended solely for the addressee. If you received this in error, please delete it immediately."
+    },
+    "red_flags": [
+        {
+            "id": "lookalike_domain",
+            "label": "Lookalike sender domain",
+            "detail": "The email comes from 'company-itsupport.com' instead of 'company.com'. Attackers register similar-looking domains to appear internal."
+        },
+        {
+            "id": "external_link",
+            "label": "Password reset link goes to external domain",
+            "detail": "The reset link is on 'company-itsupport.com', not the company's actual domain. Internal IT would use internal systems."
+        },
+        {
+            "id": "end_of_day_deadline",
+            "label": "End-of-day deadline creates pressure",
+            "detail": "While less extreme than '24 hours', the tight deadline is still designed to prevent you from verifying through other channels."
+        },
+        {
+            "id": "threat_of_suspension",
+            "label": "Threat of account suspension",
+            "detail": "The threat of suspension during a 'migration window' adds pressure. Legitimate IT teams provide longer timelines and multiple reminders."
+        },
+        {
+            "id": "no_personalization",
+            "label": "Generic greeting instead of your name",
+            "detail": "Real internal IT emails typically address you by name. 'Dear Employee' suggests a mass-targeted attack."
+        }
+    ],
+    "actions": [
+        {
+            "id": "click_reset_link",
+            "label": "Click the link and update your password",
+            "is_correct": false,
+            "feedback": "This link leads to a credential harvesting page that captures your current and new password. The attacker now has access to your account."
+        },
+        {
+            "id": "forward_colleagues",
+            "label": "Forward to colleagues to make sure they see it",
+            "is_correct": false,
+            "feedback": "Forwarding phishing emails spreads the attack further within the organization. Never forward suspicious emails to others."
+        },
+        {
+            "id": "call_it_helpdesk",
+            "label": "Call the IT Help Desk using the company directory number",
+            "is_correct": true,
+            "feedback": "Excellent! Verifying through a known, trusted channel (not the number in the email) is the gold standard response. Use numbers from the company directory."
+        },
+        {
+            "id": "report_to_it",
+            "label": "Report the email to IT security via official channels",
+            "is_correct": true,
+            "feedback": "Perfect! Reporting to IT security through official channels helps them investigate and warn other employees."
+        }
+    ],
+    "learning_objectives": [
+        "Verify sender domains carefully — lookalike domains are a common tactic",
+        "Internal IT requests should come from internal domains and systems",
+        "Always verify urgent requests through a separate trusted channel",
+        "Never forward suspicious emails to others",
+        "Use company directories for contact information, not details in emails"
+    ]
+}

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}{{ student.username }} - Admin - PhishSim{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/simulation.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.students') }}">Students</a></li>
+        <li class="breadcrumb-item active">{{ student.username }}</li>
+    </ol>
+</nav>
+
+<h2 class="mb-1"><i class="bi bi-person"></i> {{ student.username }}</h2>
+<p class="text-muted mb-4">{{ student.email }} | Joined {{ student.created_at.strftime('%Y-%m-%d') }}</p>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card p-3 text-center">
+            <div class="stat-value text-primary">{{ stats.total_sessions }}</div>
+            <div class="stat-label">Sessions</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card p-3 text-center">
+            <div class="stat-value text-success">{{ stats.completed_sessions }}</div>
+            <div class="stat-label">Completed</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card p-3 text-center">
+            <div class="stat-value text-info">{{ stats.avg_score if stats.avg_score is not none else '—' }}{% if stats.avg_score is not none %}%{% endif %}</div>
+            <div class="stat-label">Avg Score</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card p-3 text-center">
+            <div class="stat-value text-warning">{{ stats.accuracy_rate if stats.accuracy_rate is not none else '—' }}{% if stats.accuracy_rate is not none %}%{% endif %}</div>
+            <div class="stat-label">Accuracy</div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row g-3 mb-4">
+    {% if charts.score_distribution %}
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><h6 class="mb-0">Score Distribution</h6></div>
+            <div class="card-body text-center">
+                <img src="{{ charts.score_distribution }}" alt="Score Distribution" class="img-fluid">
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if charts.difficulty_comparison %}
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><h6 class="mb-0">Performance by Difficulty</h6></div>
+            <div class="card-body text-center">
+                <img src="{{ charts.difficulty_comparison }}" alt="Difficulty Comparison" class="img-fluid">
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Difficulty Breakdown -->
+{% if stats.scores_by_difficulty %}
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-white"><h5 class="mb-0">By Difficulty</h5></div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead><tr><th>Difficulty</th><th>Sessions</th><th>Average</th><th>Best</th></tr></thead>
+                <tbody>
+                    {% for diff in ['beginner', 'intermediate', 'advanced'] %}
+                    {% if diff in stats.scores_by_difficulty %}
+                    {% set d = stats.scores_by_difficulty[diff] %}
+                    <tr>
+                        <td><span class="badge {% if diff == 'beginner' %}bg-success{% elif diff == 'intermediate' %}bg-warning text-dark{% else %}bg-danger{% endif %}">{{ diff|capitalize }}</span></td>
+                        <td>{{ d.count }}</td>
+                        <td class="fw-bold">{{ d.avg }}%</td>
+                        <td>{{ d.best }}%</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Common Mistakes -->
+{% if stats.common_mistakes %}
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-white"><h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Common Mistakes</h5></div>
+    <div class="card-body">
+        {% for m in stats.common_mistakes %}
+        <div class="d-flex justify-content-between py-2 border-bottom">
+            <span><i class="bi bi-x-circle text-danger"></i> {{ m.action|replace('_', ' ')|title }}</span>
+            <span class="badge bg-secondary">{{ m.count }}x</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Session History -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-white"><h5 class="mb-0">Session History</h5></div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>Date</th><th>Scenario</th><th>Difficulty</th><th>Status</th><th>Score</th><th></th></tr></thead>
+            <tbody>
+                {% for item in session_data %}
+                <tr>
+                    <td class="text-muted small">{{ item.session.started_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ item.title }}</td>
+                    <td>
+                        <span class="badge {% if item.session.difficulty == 'beginner' %}bg-success{% elif item.session.difficulty == 'intermediate' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                            {{ item.session.difficulty|capitalize }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if item.session.status == 'completed' %}
+                        <span class="badge bg-primary">Completed</span>
+                        {% else %}
+                        <span class="badge bg-secondary">In Progress</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.session.score is not none %}
+                        <span class="fw-bold">{{ '%.0f'|format(item.session.score) }}%</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>
+                        {% if item.session.status == 'completed' %}
+                        <a href="{{ url_for('admin.session_detail', session_id=item.session.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not session_data %}
+                <tr><td colspan="6" class="text-center text-muted py-3">No sessions yet.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

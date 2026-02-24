@@ -1,0 +1,73 @@
+{
+    "id": "beginner_website_login",
+    "title": "Fake Bank Login Page",
+    "difficulty": "beginner",
+    "type": "website",
+    "description": "A poorly cloned bank login page with obvious visual and technical flaws.",
+    "context": "You clicked a link from an email and landed on what appears to be your bank's login page. The email said your account has been temporarily locked.",
+    "content": {
+        "url": "http://secure-bankofamerica.login-verify.net/signin",
+        "page_title": "Bank of America - Sign In to Online Banking",
+        "page_html": "<div style='text-align:center; font-family:Arial'><h2>Bank of America</h2><p style='color:red;font-weight:bold'>YOUR ACCOUNT HAS BEEN TEMPORARILY LOCKED</p><p>Please verify your identity to restore access.</p><form><label>Social Security Number:</label><br><input type='text' placeholder='XXX-XX-XXXX'><br><br><label>Online ID:</label><br><input type='text'><br><br><label>Passcode:</label><br><input type='password'><br><br><label>ATM/Debit Card Number:</label><br><input type='text'><br><br><button style='background:red;color:white;padding:10px 30px;border:none'>VERIFY NOW</button></form><p style='font-size:11px;color:gray'>© 2024 Bank of America Corporation</p></div>"
+    },
+    "red_flags": [
+        {
+            "id": "wrong_domain",
+            "label": "URL is not the real bank domain",
+            "detail": "The real Bank of America URL is bankofamerica.com. This page is hosted on 'login-verify.net' — a completely different domain."
+        },
+        {
+            "id": "http_not_https",
+            "label": "No HTTPS encryption",
+            "detail": "The URL starts with 'http://' instead of 'https://'. Legitimate bank sites always use HTTPS with a valid certificate."
+        },
+        {
+            "id": "asks_ssn",
+            "label": "Requests Social Security Number",
+            "detail": "Banks never ask for your full SSN on a login page. This is a clear attempt to steal your identity."
+        },
+        {
+            "id": "asks_card_number",
+            "label": "Requests ATM/Debit card number at login",
+            "detail": "A login page should only ask for your username and password, never your card number."
+        },
+        {
+            "id": "scare_tactic",
+            "label": "Account locked scare tactic",
+            "detail": "Claiming your account is locked creates panic. Real banks contact you through secure in-app messages or phone calls."
+        }
+    ],
+    "actions": [
+        {
+            "id": "enter_credentials",
+            "label": "Enter your login details and SSN",
+            "is_correct": false,
+            "feedback": "Critical mistake! You would be handing your Social Security number, banking credentials, and card details directly to attackers."
+        },
+        {
+            "id": "enter_fake_info",
+            "label": "Enter fake information to test it",
+            "is_correct": false,
+            "feedback": "Even entering fake info is risky — it confirms you're an active target and the site may install malware or track your browser."
+        },
+        {
+            "id": "close_navigate_direct",
+            "label": "Close the page and go to bankofamerica.com directly",
+            "is_correct": true,
+            "feedback": "Excellent! Always navigate to your bank by typing the URL directly. If there's a real issue with your account, you'll see it when you log in legitimately."
+        },
+        {
+            "id": "report_close",
+            "label": "Report the site as phishing and close it",
+            "is_correct": true,
+            "feedback": "Great choice! Reporting helps browsers add the site to their blocklist, protecting other potential victims."
+        }
+    ],
+    "learning_objectives": [
+        "Always check the URL bar — verify you're on the legitimate domain",
+        "Look for HTTPS and valid certificates on banking sites",
+        "Banks never ask for SSN or card numbers on login pages",
+        "Navigate to banking sites by typing the URL directly",
+        "Report phishing websites to help protect others"
+    ]
+}

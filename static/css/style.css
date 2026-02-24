@@ -1,0 +1,86 @@
+/* ===== Global ===== */
+body {
+    background-color: #f5f7fa;
+    min-height: 100vh;
+}
+
+/* ===== Auth Pages ===== */
+.auth-container {
+    max-width: 450px;
+    margin: 60px auto;
+}
+
+.auth-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.auth-card .card-header {
+    background-color: #212529;
+    color: #fff;
+    border-radius: 12px 12px 0 0;
+    text-align: center;
+    padding: 20px;
+}
+
+/* ===== Dashboard ===== */
+.stat-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: transform 0.15s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.stat-card .stat-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ===== Difficulty Cards ===== */
+.difficulty-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: transform 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
+
+.difficulty-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    color: inherit;
+}
+
+.difficulty-beginner {
+    border-left: 4px solid #198754;
+}
+
+.difficulty-intermediate {
+    border-left: 4px solid #fd7e14;
+}
+
+.difficulty-advanced {
+    border-left: 4px solid #dc3545;
+}
+
+/* ===== Session Table ===== */
+.session-table th {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Briefing - {{ state.scenario.title }} - PhishSim{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/simulation.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div id="sim-container" data-session-id="{{ state.session.id }}" data-stage="briefing">
+
+<!-- Progress Stages -->
+<div class="progress-stages">
+    <div class="progress-stage active" data-stage="0">
+        <span class="stage-num">1</span> Briefing
+    </div>
+    <div class="progress-stage" data-stage="1">
+        <span class="stage-num">2</span> Scenario
+    </div>
+    <div class="progress-stage" data-stage="2">
+        <span class="stage-num">3</span> Red Flags
+    </div>
+    <div class="progress-stage" data-stage="3">
+        <span class="stage-num">4</span> Results
+    </div>
+</div>
+
+<!-- Briefing Card -->
+<div class="briefing-card fade-in">
+    <div class="briefing-header">
+        <h3><i class="bi bi-shield-lock"></i> Simulation Briefing</h3>
+        <h5 class="fw-normal opacity-75">{{ state.scenario.title }}</h5>
+    </div>
+    <div class="briefing-body">
+        <!-- Meta Info -->
+        <div class="briefing-meta">
+            <div class="briefing-meta-item">
+                <i class="bi bi-bar-chart"></i>
+                <span>Difficulty:</span>
+                {% if state.scenario.difficulty == 'beginner' %}
+                <span class="badge bg-success">Beginner</span>
+                {% elif state.scenario.difficulty == 'intermediate' %}
+                <span class="badge bg-warning text-dark">Intermediate</span>
+                {% else %}
+                <span class="badge bg-danger">Advanced</span>
+                {% endif %}
+            </div>
+            <div class="briefing-meta-item">
+                {% if state.scenario.type == 'email' %}
+                <i class="bi bi-envelope"></i> <span>Email Simulation</span>
+                {% elif state.scenario.type == 'sms' %}
+                <i class="bi bi-chat-dots"></i> <span>SMS Simulation</span>
+                {% else %}
+                <i class="bi bi-globe"></i> <span>Website Simulation</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Scenario Context -->
+        <h6 class="mb-2"><i class="bi bi-info-circle"></i> Scenario Context</h6>
+        <div class="briefing-context">
+            {{ state.scenario.context }}
+        </div>
+
+        <!-- Instructions -->
+        <div class="mb-4">
+            <h6 class="mb-2"><i class="bi bi-list-check"></i> Your Objectives</h6>
+            <ol class="text-muted" style="font-size: 14px; line-height: 1.8;">
+                <li>Carefully examine the {{ state.scenario.type }} you're about to see</li>
+                <li>Decide how you would respond in this situation</li>
+                <li>Identify as many red flags (warning signs) as you can</li>
+                <li>Review your results and learn from the analysis</li>
+            </ol>
+        </div>
+
+        <div class="alert alert-warning mb-4">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Remember:</strong> This is a safe simulation. No real emails will be sent, no real links will be followed, and no real data will be collected.
+        </div>
+
+        <div class="text-center">
+            <a href="{{ url_for('simulation.play', session_id=state.session.id) }}" class="btn btn-primary btn-lg px-5">
+                <i class="bi bi-play-circle"></i> Begin Simulation
+            </a>
+        </div>
+    </div>
+</div>
+
+</div>
+{% endblock %}

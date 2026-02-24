@@ -1,0 +1,82 @@
+{
+    "id": "advanced_email_spearphish_ceo",
+    "title": "CEO Urgent Wire Transfer Request",
+    "difficulty": "advanced",
+    "type": "email",
+    "description": "A highly targeted spear-phishing email impersonating the CEO, using real company context and urgency to request a wire transfer.",
+    "context": "You are a finance department employee at TechNova Solutions. Your CEO is Sarah Mitchell. She is currently traveling for a board meeting in London, which was announced in last week's company newsletter. You handle vendor payments regularly.",
+    "content": {
+        "from_name": "Sarah Mitchell",
+        "from_email": "sarah.mitchell@technova-solutions.com",
+        "to": "you@technovasolutions.com",
+        "subject": "Re: Urgent - Confidential Vendor Payment",
+        "body_html": "<p>Hi,</p><p>I need your help with something time-sensitive. I'm in back-to-back meetings here in London and can't make a call right now.</p><p>We need to process an urgent wire transfer of $43,750 to a new vendor for the Q4 consulting engagement that the board just approved. I need this completed by 3 PM EST today as the contract terms require same-day payment upon approval.</p><p>Here are the wire details:</p><ul><li>Beneficiary: Meridian Strategic Partners Ltd</li><li>Bank: First National Bank, London</li><li>Account: 4421-8890-3367</li><li>SWIFT: FNBKGB2L</li><li>Reference: TNS-Q4-2024-CONSULT</li></ul><p>I know this is last-minute — the board session ran longer than expected. Please keep this confidential until the official announcement next week. I'll send the signed authorization when I'm out of this meeting.</p><p>Can you confirm once it's processed?</p><p>Thanks,<br>Sarah</p><p style='font-size:11px;color:#999'>Sent from my iPhone</p>",
+        "body_text": "Hi,\n\nI need your help with something time-sensitive. I'm in back-to-back meetings here in London and can't make a call right now.\n\nWe need to process an urgent wire transfer of $43,750 to a new vendor for the Q4 consulting engagement that the board just approved. I need this completed by 3 PM EST today as the contract terms require same-day payment upon approval.\n\nHere are the wire details:\n- Beneficiary: Meridian Strategic Partners Ltd\n- Bank: First National Bank, London\n- Account: 4421-8890-3367\n- SWIFT: FNBKGB2L\n- Reference: TNS-Q4-2024-CONSULT\n\nI know this is last-minute — the board session ran longer than expected. Please keep this confidential until the official announcement next week. I'll send the signed authorization when I'm out of this meeting.\n\nCan you confirm once it's processed?\n\nThanks,\nSarah\n\nSent from my iPhone"
+    },
+    "red_flags": [
+        {
+            "id": "domain_mismatch",
+            "label": "Sender domain doesn't match company domain",
+            "detail": "The email comes from 'technova-solutions.com' (with hyphen) while the real company domain is 'technovasolutions.com' (no hyphen). This subtle difference is easy to miss."
+        },
+        {
+            "id": "bypasses_process",
+            "label": "Requests bypassing normal payment approval process",
+            "detail": "Legitimate payments go through established approval workflows. Asking an individual to process a wire directly bypasses controls."
+        },
+        {
+            "id": "confidentiality_request",
+            "label": "Asks to keep it confidential",
+            "detail": "Requesting secrecy prevents you from verifying with colleagues or managers — a classic social engineering isolation technique."
+        },
+        {
+            "id": "no_prior_thread",
+            "label": "Uses 'Re:' but there is no prior thread",
+            "detail": "The subject starts with 'Re:' to suggest an ongoing conversation, but you have no previous emails in this thread."
+        },
+        {
+            "id": "authorization_delayed",
+            "label": "Signed authorization promised later",
+            "detail": "Asking you to act now and promising documentation later reverses the proper order of operations. Authorization should come before payment."
+        },
+        {
+            "id": "leverages_public_info",
+            "label": "Uses publicly known information (London trip)",
+            "detail": "The attacker uses the CEO's known travel to make the scenario plausible. This information was in the company newsletter."
+        }
+    ],
+    "actions": [
+        {
+            "id": "process_transfer",
+            "label": "Process the wire transfer as requested",
+            "is_correct": false,
+            "feedback": "You've just sent $43,750 to an attacker's account. Business Email Compromise (BEC) scams cause billions in losses annually. Once wired, funds are nearly impossible to recover."
+        },
+        {
+            "id": "reply_confirm",
+            "label": "Reply to confirm you'll process it shortly",
+            "is_correct": false,
+            "feedback": "Replying engages the attacker and commits you to action. They'll follow up with increased pressure. Also, you'd be replying to the attacker's domain, not the real CEO."
+        },
+        {
+            "id": "call_ceo_direct",
+            "label": "Call Sarah Mitchell on her known phone number to verify",
+            "is_correct": true,
+            "feedback": "Outstanding! For any unusual financial request, verbal verification through a known number is essential. The real Sarah would confirm she never sent this email."
+        },
+        {
+            "id": "escalate_manager",
+            "label": "Escalate to your direct manager and IT security",
+            "is_correct": true,
+            "feedback": "Excellent judgment! Escalating breaks the attacker's isolation strategy. Your manager and IT security can verify and protect the organization."
+        }
+    ],
+    "learning_objectives": [
+        "Always verify unusual financial requests through a separate channel (phone call)",
+        "Check sender domains character-by-character for subtle misspellings",
+        "Requests for secrecy are a major red flag — always involve your manager",
+        "Understand Business Email Compromise (BEC) — the most costly form of phishing",
+        "Attackers use OSINT (public information) to craft convincing pretexts",
+        "Authorization must precede action — never process payments without proper approval"
+    ]
+}

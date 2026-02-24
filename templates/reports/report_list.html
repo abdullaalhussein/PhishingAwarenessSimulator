@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}My Reports - PhishSim{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Reports</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-file-earmark-bar-graph"></i> My Reports</h2>
+    <a href="{{ url_for('report.progress') }}" class="btn btn-outline-primary">
+        <i class="bi bi-graph-up"></i> View Progress Report
+    </a>
+</div>
+
+{% if session_data %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Scenario</th>
+                <th>Type</th>
+                <th>Difficulty</th>
+                <th>Score</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in session_data %}
+            <tr>
+                <td class="text-muted small">
+                    {{ item.session.completed_at.strftime('%Y-%m-%d %H:%M') if item.session.completed_at else '—' }}
+                </td>
+                <td>{{ item.title }}</td>
+                <td>
+                    {% if item.type == 'email' %}
+                    <span class="badge bg-primary"><i class="bi bi-envelope"></i> Email</span>
+                    {% elif item.type == 'sms' %}
+                    <span class="badge bg-info"><i class="bi bi-chat-dots"></i> SMS</span>
+                    {% else %}
+                    <span class="badge bg-secondary"><i class="bi bi-globe"></i> Web</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.session.difficulty == 'beginner' %}
+                    <span class="badge bg-success">Beginner</span>
+                    {% elif item.session.difficulty == 'intermediate' %}
+                    <span class="badge bg-warning text-dark">Intermediate</span>
+                    {% else %}
+                    <span class="badge bg-danger">Advanced</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% set score = item.session.score %}
+                    <span class="fw-bold {% if score >= 90 %}text-success{% elif score >= 70 %}text-info{% elif score >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                        {{ '%.0f'|format(score) }}%
+                    </span>
+                </td>
+                <td>
+                    <a href="{{ url_for('report.session_report', session_id=item.session.id) }}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye"></i> View
+                    </a>
+                    <a href="{{ url_for('report.export_report', session_id=item.session.id) }}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-download"></i> Export
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="text-center text-muted py-5">
+    <i class="bi bi-file-earmark-x" style="font-size: 2rem;"></i>
+    <p class="mt-2">No completed simulations yet. Complete a simulation to see your reports.</p>
+    <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary mt-2">Start a Simulation</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - PhishSim{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Welcome, {{ current_user.username }}</h2>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card p-3 text-center">
+            <div class="stat-value text-primary">{{ total_sessions }}</div>
+            <div class="stat-label">Total Sessions</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card p-3 text-center">
+            <div class="stat-value text-success">{{ completed_sessions }}</div>
+            <div class="stat-label">Completed</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card p-3 text-center">
+            <div class="stat-value text-info">{{ avg_score if avg_score is not none else '—' }}{% if avg_score is not none %}%{% endif %}</div>
+            <div class="stat-label">Avg Score</div>
+        </div>
+    </div>
+</div>
+
+<!-- Start Simulation -->
+<h4 class="mb-3">Start a Simulation</h4>
+<div class="row g-3 mb-5">
+    <div class="col-md-4">
+        <div class="card difficulty-card difficulty-beginner p-4">
+            <h5 class="text-success"><i class="bi bi-shield-check"></i> Beginner</h5>
+            <p class="text-muted small mb-3">Basic phishing indicators: obvious fake emails, simple malicious links, poor grammar.</p>
+            <a href="{{ url_for('simulation.select_scenario', difficulty='beginner') }}" class="btn btn-outline-success btn-sm">Start</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card difficulty-card difficulty-intermediate p-4">
+            <h5 class="text-warning"><i class="bi bi-shield-exclamation"></i> Intermediate</h5>
+            <p class="text-muted small mb-3">Realistic scenarios with partial legitimacy, lookalike domains, contextual pretexts.</p>
+            <a href="{{ url_for('simulation.select_scenario', difficulty='intermediate') }}" class="btn btn-outline-warning btn-sm">Start</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card difficulty-card difficulty-advanced p-4">
+            <h5 class="text-danger"><i class="bi bi-shield-x"></i> Advanced</h5>
+            <p class="text-muted small mb-3">Sophisticated spear-phishing, thread hijacking, homograph attacks, multi-stage.</p>
+            <a href="{{ url_for('simulation.select_scenario', difficulty='advanced') }}" class="btn btn-outline-danger btn-sm">Start</a>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Sessions -->
+<h4 class="mb-3">Recent Sessions</h4>
+{% if recent_sessions %}
+<div class="table-responsive">
+    <table class="table table-hover session-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Difficulty</th>
+                <th>Scenario</th>
+                <th>Status</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for session in recent_sessions %}
+            <tr>
+                <td>{{ session.started_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    {% if session.difficulty == 'beginner' %}
+                    <span class="badge bg-success">Beginner</span>
+                    {% elif session.difficulty == 'intermediate' %}
+                    <span class="badge bg-warning text-dark">Intermediate</span>
+                    {% else %}
+                    <span class="badge bg-danger">Advanced</span>
+                    {% endif %}
+                </td>
+                <td>{{ session.scenario_id }}</td>
+                <td>
+                    {% if session.status == 'completed' %}
+                    <span class="badge bg-primary">Completed</span>
+                    {% else %}
+                    <span class="badge bg-secondary">In Progress</span>
+                    {% endif %}
+                </td>
+                <td>{{ '%.1f%%'|format(session.score) if session.score is not none else '—' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="text-center text-muted py-4">
+    <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+    <p class="mt-2">No simulation sessions yet. Start your first one above!</p>
+</div>
+{% endif %}
+{% endblock %}

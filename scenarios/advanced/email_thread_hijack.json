@@ -1,0 +1,77 @@
+{
+    "id": "advanced_email_thread_hijack",
+    "title": "Invoice Thread Hijacking",
+    "difficulty": "advanced",
+    "type": "email",
+    "description": "An attacker has compromised a vendor's email and injects a reply into a real ongoing invoice thread, changing payment details.",
+    "context": "You are in the accounts payable department. Your company has been working with CloudBridge Hosting for 6 months. You have an ongoing email thread about their monthly hosting invoice. The last legitimate email in the thread was from Amy Rodriguez at CloudBridge three days ago, confirming the invoice amount of $12,400.",
+    "content": {
+        "from_name": "Amy Rodriguez",
+        "from_email": "amy.rodriguez@cloudbridge-hosting.com",
+        "to": "you@company.com",
+        "subject": "Re: Re: CloudBridge Hosting - January 2025 Invoice #CB-2025-0147",
+        "body_html": "<p>Hi,</p><p>Quick update on the invoice I sent over — we've recently changed our banking provider for improved international processing. Please use the updated payment details below for this and all future invoices:</p><p><b>Updated Banking Details:</b></p><ul><li>Bank: Global Trust Bank</li><li>Account Name: CloudBridge Hosting International</li><li>Account: 7891-2345-6780</li><li>Routing: 021000089</li><li>Reference: CB-2025-0147</li></ul><p>Everything else on the invoice stays the same — $12,400 as confirmed. Apologies for the last-minute change. Our finance team completed the bank migration over the weekend.</p><p>Let me know if you need a formal bank change letter — I can have our CFO send one over.</p><p>Thanks,<br>Amy Rodriguez<br>Account Manager<br>CloudBridge Hosting<br>amy.rodriguez@cloudbridge-hosting.com<br>(555) 892-4100</p><div style='border-left:2px solid #ccc;padding-left:10px;margin-top:20px;color:#666;font-size:13px'><p><b>From:</b> Amy Rodriguez<br><b>Sent:</b> Monday, January 20, 2025 2:14 PM<br><b>Subject:</b> Re: CloudBridge Hosting - January 2025 Invoice #CB-2025-0147</p><p>Hi,</p><p>Thanks for confirming. Yes, the amount is $12,400 for January hosting services as per our agreement. Invoice #CB-2025-0147 is attached.</p><p>Please process by January 31st per our net-30 terms.</p><p>Best,<br>Amy</p></div>",
+        "body_text": "Hi,\n\nQuick update on the invoice I sent over — we've recently changed our banking provider for improved international processing. Please use the updated payment details below for this and all future invoices:\n\nUpdated Banking Details:\n- Bank: Global Trust Bank\n- Account Name: CloudBridge Hosting International\n- Account: 7891-2345-6780\n- Routing: 021000089\n- Reference: CB-2025-0147\n\nEverything else on the invoice stays the same — $12,400 as confirmed. Apologies for the last-minute change. Our finance team completed the bank migration over the weekend.\n\nLet me know if you need a formal bank change letter — I can have our CFO send one over.\n\nThanks,\nAmy Rodriguez\nAccount Manager\nCloudBridge Hosting\namy.rodriguez@cloudbridge-hosting.com\n(555) 892-4100\n\n--- Previous message ---\nFrom: Amy Rodriguez\nSent: Monday, January 20, 2025 2:14 PM\nSubject: Re: CloudBridge Hosting - January 2025 Invoice #CB-2025-0147\n\nHi,\n\nThanks for confirming. Yes, the amount is $12,400 for January hosting services as per our agreement. Invoice #CB-2025-0147 is attached.\n\nPlease process by January 31st per our net-30 terms.\n\nBest,\nAmy"
+    },
+    "red_flags": [
+        {
+            "id": "bank_change_request",
+            "label": "Last-minute banking detail change",
+            "detail": "Changing payment details mid-invoice-cycle is the hallmark of a vendor email compromise attack. This is the #1 red flag in accounts payable fraud."
+        },
+        {
+            "id": "different_bank_name",
+            "label": "New bank name doesn't match vendor's established banking",
+            "detail": "A switch to 'Global Trust Bank' from whatever bank was used for the past 6 months of invoices should trigger verification."
+        },
+        {
+            "id": "offers_cfo_letter",
+            "label": "Proactively offers verification documentation",
+            "detail": "The attacker anticipates you might want verification and preemptively offers a CFO letter — which they would also forge. This is a sophisticated social engineering technique."
+        },
+        {
+            "id": "weekend_migration",
+            "label": "Claims bank migration happened over the weekend",
+            "detail": "Convenient timing explanation that can't be easily verified immediately. Real bank migrations are major events communicated well in advance."
+        },
+        {
+            "id": "thread_context",
+            "label": "Leverages real thread context and invoice details",
+            "detail": "The attacker has access to the real email thread (via compromised vendor email) and uses correct amounts and invoice numbers to appear legitimate."
+        }
+    ],
+    "actions": [
+        {
+            "id": "update_and_pay",
+            "label": "Update the banking details and process payment",
+            "is_correct": false,
+            "feedback": "You've redirected $12,400 to the attacker. Because the email came from the real vendor's compromised account with correct invoice details, this is extremely hard to catch without proper procedures."
+        },
+        {
+            "id": "request_cfo_letter",
+            "label": "Reply asking for the CFO bank change letter",
+            "is_correct": false,
+            "feedback": "The attacker will forge a convincing CFO letter. If the vendor's email is compromised, any documents sent through it cannot be trusted."
+        },
+        {
+            "id": "call_vendor_known_number",
+            "label": "Call CloudBridge using the number from your records (not from this email)",
+            "is_correct": true,
+            "feedback": "Perfect! Using a previously verified phone number from your vendor records — not the number in the email — is the only reliable way to verify bank changes."
+        },
+        {
+            "id": "follow_bank_change_procedure",
+            "label": "Follow your company's vendor bank change verification procedure",
+            "is_correct": true,
+            "feedback": "Excellent! Companies should have formal procedures for verifying vendor bank changes. Following established protocols protects against this exact attack."
+        }
+    ],
+    "learning_objectives": [
+        "Vendor bank change requests must ALWAYS be verified via phone using known numbers",
+        "Compromised vendor email means all content from that account is untrustworthy",
+        "Thread hijacking uses real conversation context — prior messages don't guarantee current legitimacy",
+        "Vendor email compromise is one of the most costly and hardest-to-detect attack types",
+        "Establish formal bank change verification procedures with multi-channel confirmation",
+        "Documents offered through a compromised channel cannot be used for verification"
+    ]
+}

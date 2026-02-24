@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Scenarios - Admin - PhishSim{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
+        <li class="breadcrumb-item active">Scenarios</li>
+    </ol>
+</nav>
+
+<h2 class="mb-4"><i class="bi bi-collection-play"></i> Simulation Scenarios</h2>
+
+{% for difficulty in ['beginner', 'intermediate', 'advanced'] %}
+{% if difficulty in all_scenarios and all_scenarios[difficulty] %}
+<h4 class="mt-4 mb-3">
+    {% if difficulty == 'beginner' %}
+    <span class="badge bg-success">Beginner</span>
+    {% elif difficulty == 'intermediate' %}
+    <span class="badge bg-warning text-dark">Intermediate</span>
+    {% else %}
+    <span class="badge bg-danger">Advanced</span>
+    {% endif %}
+    ({{ all_scenarios[difficulty]|length }} scenarios)
+</h4>
+
+<div class="table-responsive mb-4">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Red Flags</th>
+                <th>Actions</th>
+                <th>Attempts</th>
+                <th>Completed</th>
+                <th>Avg Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for scenario in all_scenarios[difficulty] %}
+            {% set ss = scenario_stats.get(scenario.id, {}) %}
+            <tr>
+                <td>
+                    <strong>{{ scenario.title }}</strong>
+                    <div class="text-muted small">{{ scenario.description }}</div>
+                </td>
+                <td>
+                    {% if scenario.type == 'email' %}
+                    <span class="badge bg-primary"><i class="bi bi-envelope"></i> Email</span>
+                    {% elif scenario.type == 'sms' %}
+                    <span class="badge bg-info"><i class="bi bi-chat-dots"></i> SMS</span>
+                    {% else %}
+                    <span class="badge bg-secondary"><i class="bi bi-globe"></i> Web</span>
+                    {% endif %}
+                </td>
+                <td>{{ scenario.red_flags|length }}</td>
+                <td>{{ scenario.actions|length }}</td>
+                <td>{{ ss.get('total_attempts', 0) }}</td>
+                <td>{{ ss.get('completed', 0) }}</td>
+                <td>
+                    {% if ss.get('avg_score') is not none %}
+                    <span class="fw-bold {% if ss.avg_score >= 70 %}text-success{% elif ss.avg_score >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                        {{ ss.avg_score }}%
+                    </span>
+                    {% else %}
+                    <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endfor %}
+{% endblock %}

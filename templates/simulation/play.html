@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Simulation - {{ state.scenario.title }} - PhishSim{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/simulation.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div id="sim-container" data-session-id="{{ state.session.id }}" data-stage="{{ stage }}">
+<div id="toast-container"></div>
+
+<!-- Header: Timer + Progress -->
+<div class="sim-section-header mb-2">
+    <div></div>
+    <div class="sim-timer" id="sim-timer">
+        <i class="bi bi-stopwatch"></i>
+        <span id="sim-timer">00:00</span>
+    </div>
+</div>
+
+<!-- Progress Stages -->
+<div class="progress-stages">
+    <div class="progress-stage done" data-stage="0">
+        <span class="stage-num">1</span> Briefing
+    </div>
+    <div class="progress-stage {% if stage == 'simulation' %}active{% else %}done{% endif %}" data-stage="1">
+        <span class="stage-num">2</span> Scenario
+    </div>
+    <div class="progress-stage {% if stage == 'red_flags' %}active{% elif stage in ('review', 'result') %}done{% endif %}" data-stage="2">
+        <span class="stage-num">3</span> Red Flags
+    </div>
+    <div class="progress-stage" data-stage="3">
+        <span class="stage-num">4</span> Results
+    </div>
+</div>
+
+<div class="sim-content fade-in">
+
+{% if stage == 'simulation' %}
+{# ===== STAGE: View Phishing Content & Choose Action ===== #}
+
+{% set rc = state.rendered_content %}
+
+{% if rc.type == 'email' %}
+{# ----- Email Client Renderer ----- #}
+<div class="email-client mb-4">
+    <div class="email-toolbar">
+        <span class="email-toolbar-btn"><i class="bi bi-arrow-left"></i></span>
+        <span class="email-toolbar-btn"><i class="bi bi-archive"></i></span>
+        <span class="email-toolbar-btn"><i class="bi bi-exclamation-circle"></i> Spam</span>
+        <span class="email-toolbar-btn"><i class="bi bi-trash"></i></span>
+    </div>
+    <div class="email-header-section">
+        <div class="email-subject-line">{{ rc.subject }}</div>
+        <div class="email-sender-row">
+            <div class="email-avatar">{{ rc.from_name[0]|upper }}</div>
+            <div class="email-sender-info">
+                <div class="email-sender-name">{{ rc.from_name }}</div>
+                <div class="email-sender-addr">&lt;{{ rc.from_email }}&gt;</div>
+                <div class="email-to-line">To: {{ rc.to }}</div>
+            </div>
+            <div class="email-timestamp">
+                <i class="bi bi-clock"></i> Today, 9:42 AM
+            </div>
+        </div>
+    </div>
+    <div class="email-body-section">
+        {{ rc.body_html }}
+    </div>
+</div>
+
+{% elif rc.type == 'sms' %}
+{# ----- Phone / SMS Renderer ----- #}
+<div class="phone-frame mb-4">
+    <div class="phone-notch">
+        <div class="phone-notch-pill"></div>
+    </div>
+    <div class="phone-status-bar">
+        <span>9:41</span>
+        <span><i class="bi bi-wifi"></i> <i class="bi bi-battery-full"></i></span>
+    </div>
+    <div class="sms-screen">
+        <div class="sms-contact-header">
+            <div class="sms-contact-avatar"><i class="bi bi-person"></i></div>
+            <div class="sms-contact-name">{{ rc.sender }}</div>
+        </div>
+        <div class="sms-bubble">{{ rc.message_text }}</div>
+        <div class="sms-time">Today 9:41 AM</div>
+    </div>
+    <div class="phone-home-bar">
+        <div class="phone-home-indicator"></div>
+    </div>
+</div>
+
+{% elif rc.type == 'website' %}
+{# ----- Browser / Website Renderer ----- #}
+{% set url_text = rc.url %}
+<div class="browser-frame mb-4">
+    <div class="browser-title-bar">
+        <div class="browser-dots">
+            <span class="browser-dot red"></span>
+            <span class="browser-dot yellow"></span>
+            <span class="browser-dot green"></span>
+        </div>
+        <div class="browser-tab">{{ rc.page_title }}</div>
+    </div>
+    <div class="browser-address-bar">
+        <div class="browser-nav-btns">
+            <i class="bi bi-chevron-left"></i>
+            <i class="bi bi-chevron-right"></i>
+            <i class="bi bi-arrow-clockwise"></i>
+        </div>
+        <div class="browser-url-box {% if 'https' in url_text %}{% else %}{% endif %}">
+            {% if 'https' in url_text %}
+            <span class="lock-icon"><i class="bi bi-lock"></i></span>
+            {% else %}
+            <span class="lock-icon"><i class="bi bi-unlock"></i></span>
+            {% endif %}
+            <span>{{ url_text }}</span>
+        </div>
+    </div>
+    <div class="browser-page-content">
+        {{ rc.page_html }}
+    </div>
+</div>
+{% endif %}
+
+{# ----- Action Selection ----- #}
+<div class="context-card mb-3">
+    <h6 class="mb-1"><i class="bi bi-info-circle"></i> Scenario Context</h6>
+    <p class="mb-0">{{ state.scenario.context }}</p>
+</div>
+
+<h5 class="mb-3"><i class="bi bi-hand-index"></i> What do you do?</h5>
+<form method="POST" action="{{ url_for('simulation.submit_action', session_id=state.session.id) }}" id="actionForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="d-flex flex-column gap-2 mb-4">
+        {% for action in state.scenario.actions %}
+        <label class="action-card">
+            <input type="radio" name="action_id" value="{{ action.id }}" required>
+            <span class="action-label">{{ action.label }}</span>
+        </label>
+        {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary btn-lg">
+        <i class="bi bi-check-circle"></i> Submit My Decision
+    </button>
+</form>
+
+{% elif stage == 'red_flags' %}
+{# ===== STAGE: Identify Red Flags ===== #}
+<h5 class="mb-3"><i class="bi bi-flag"></i> Identify the Red Flags</h5>
+<p class="text-muted mb-3">Review the scenario and select all the warning signs you noticed.</p>
+
+<form method="POST" action="{{ url_for('simulation.submit_red_flags', session_id=state.session.id) }}" id="flagForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="d-flex flex-column gap-2 mb-4">
+        {% for flag in state.scenario.red_flags %}
+        <label class="flag-card">
+            <input type="checkbox" name="red_flags" value="{{ flag.id }}" class="form-check-input">
+            <span>{{ flag.label }}</span>
+        </label>
+        {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary btn-lg">
+        <i class="bi bi-send"></i> Submit & See Results
+    </button>
+</form>
+{% endif %}
+
+</div>{# .sim-content #}
+</div>{# #sim-container #}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
+{% endblock %}

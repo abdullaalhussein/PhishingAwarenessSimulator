@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Action Feedback - PhishSim{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/simulation.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div id="sim-container" data-session-id="{{ state.session.id }}" data-stage="red_flags">
+<div id="toast-container"></div>
+
+<!-- Timer -->
+<div class="sim-section-header mb-2">
+    <div></div>
+    <div class="sim-timer" id="sim-timer">
+        <i class="bi bi-stopwatch"></i>
+        <span id="sim-timer">00:00</span>
+    </div>
+</div>
+
+<!-- Progress Stages -->
+<div class="progress-stages">
+    <div class="progress-stage done" data-stage="0">
+        <span class="stage-num">1</span> Briefing
+    </div>
+    <div class="progress-stage done" data-stage="1">
+        <span class="stage-num">2</span> Scenario
+    </div>
+    <div class="progress-stage active" data-stage="2">
+        <span class="stage-num">3</span> Red Flags
+    </div>
+    <div class="progress-stage" data-stage="3">
+        <span class="stage-num">4</span> Results
+    </div>
+</div>
+
+<div class="sim-content fade-in">
+
+<!-- Action Feedback -->
+{% if action_result.is_correct %}
+<div class="alert alert-success d-flex align-items-start gap-3">
+    <i class="bi bi-check-circle-fill fs-4"></i>
+    <div>
+        <h5 class="mb-1">Correct Action!</h5>
+        <p class="mb-0">{{ action_result.feedback }}</p>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-danger d-flex align-items-start gap-3">
+    <i class="bi bi-x-circle-fill fs-4"></i>
+    <div>
+        <h5 class="mb-1">Risky Action!</h5>
+        <p class="mb-0">{{ action_result.feedback }}</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Red Flag Identification -->
+<h5 class="mt-4 mb-2"><i class="bi bi-flag"></i> Now, Identify the Red Flags</h5>
+<p class="text-muted mb-3">Think back to what you saw. Select all the warning signs you noticed in the {{ state.scenario.type }}.</p>
+
+<form method="POST" action="{{ url_for('simulation.submit_red_flags', session_id=state.session.id) }}" id="flagForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="d-flex flex-column gap-2 mb-4">
+        {% for flag in state.scenario.red_flags %}
+        <label class="flag-card">
+            <input type="checkbox" name="red_flags" value="{{ flag.id }}" class="form-check-input">
+            <span>{{ flag.label }}</span>
+        </label>
+        {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary btn-lg">
+        <i class="bi bi-send"></i> Submit & See Final Results
+    </button>
+</form>
+
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
+{% endblock %}
