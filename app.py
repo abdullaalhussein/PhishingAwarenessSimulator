@@ -46,11 +46,19 @@ def create_app(config_name=None):
     from analyzer import analyzer_bp
     app.register_blueprint(analyzer_bp)
 
+    # Ensure instance directory exists for SQLite
+    instance_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'instance')
+    os.makedirs(instance_path, exist_ok=True)
+
     # Create database tables
     with app.app_context():
         db.create_all()
 
     return app
+
+
+# Module-level app for WSGI servers (gunicorn)
+app = create_app()
 
 
 @login_manager.user_loader
