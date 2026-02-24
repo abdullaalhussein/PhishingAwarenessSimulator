@@ -43,6 +43,9 @@ def create_app(config_name=None):
     from admin import admin_bp
     app.register_blueprint(admin_bp)
 
+    from analyzer import analyzer_bp
+    app.register_blueprint(analyzer_bp)
+
     # Create database tables
     with app.app_context():
         db.create_all()

@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block title %}Custom Simulation — PhishSim{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/simulation.css') }}" rel="stylesheet">
+<style>
+    .attack-panel {
+        background: #1a1a2e;
+        color: #e0e0e0;
+        border-radius: 10px;
+        padding: 24px;
+        margin-top: 24px;
+    }
+    .attack-panel h5 { color: #ff6b6b; }
+    .attack-item {
+        padding: 12px 16px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .attack-item.severity-high { border-left: 4px solid #dc3545; }
+    .attack-item.severity-medium { border-left: 4px solid #ffc107; }
+    .attack-item.severity-low { border-left: 4px solid #0dcaf0; }
+    .link-warning-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+    .link-warning-overlay.show { display: flex; }
+    .link-warning-box {
+        background: #fff;
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 450px;
+        text-align: center;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="d-flex align-items-center mb-1">
+            <h2 class="me-3 mb-0"><i class="bi bi-envelope-paper"></i> Custom Simulation Builder</h2>
+            <a href="{{ url_for('analyzer.index') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Analyzer
+            </a>
+        </div>
+        <p class="text-muted mb-4">Build a phishing scenario and see how it would look in a real email client.</p>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('analyzer.simulate') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="from_name">From Name</label>
+                            <input type="text" class="form-control" id="from_name"
+                                   name="from_name" placeholder="e.g. IT Support"
+                                   value="{{ form_data.get('from_name', '') or request.args.get('from_name', '') }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="from_email">From Email</label>
+                            <input type="text" class="form-control" id="from_email"
+                                   name="from_email" placeholder="e.g. support@c0mpany-help.xyz"
+                                   value="{{ form_data.get('from_email', '') or request.args.get('from_email', '') }}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="to_email">To Email</label>
+                            <input type="text" class="form-control" id="to_email"
+                                   name="to_email" placeholder="e.g. employee@university.edu"
+                                   value="{{ form_data.get('to_email', '') }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="subject">Subject</label>
+                            <input type="text" class="form-control" id="subject"
+                                   name="subject" placeholder="e.g. Action Required: Verify Your Account"
+                                   value="{{ form_data.get('subject', '') or request.args.get('subject', '') }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="body">Email Body (HTML allowed)</label>
+                        <textarea class="form-control" id="body" name="body" rows="8"
+                                  placeholder="Write the email body here... HTML tags like <a>, <p>, <b> are supported.">{{ form_data.get('body', '') or request.args.get('body', '') }}</textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-eye"></i> Preview &amp; Simulate
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {% if preview %}
+        <div class="fade-in">
+            <h4 class="mb-3">Email Preview</h4>
+
+            <!-- Realistic email client mockup -->
+            <div class="email-client">
+                <div class="email-toolbar">
+                    <span class="email-toolbar-btn"><i class="bi bi-arrow-90deg-left"></i> Reply</span>
+                    <span class="email-toolbar-btn"><i class="bi bi-arrow-90deg-right"></i> Forward</span>
+                    <span class="email-toolbar-btn"><i class="bi bi-trash"></i> Delete</span>
+                    <span class="email-toolbar-btn"><i class="bi bi-flag"></i> Flag</span>
+                </div>
+                <div class="email-header-section">
+                    <div class="email-subject-line">{{ preview.subject }}</div>
+                    <div class="email-sender-row">
+                        <div class="email-avatar">{{ preview.avatar_letter }}</div>
+                        <div class="email-sender-info">
+                            <div class="email-sender-name">{{ preview.from_name }}</div>
+                            <div class="email-sender-addr">&lt;{{ preview.from_email }}&gt;</div>
+                            <div class="email-to-line">To: {{ preview.to_email }}</div>
+                        </div>
+                        <div class="email-timestamp">Just now</div>
+                    </div>
+                </div>
+                <div class="email-body-section" id="email-body-content">
+                    {{ preview.body|safe }}
+                </div>
+            </div>
+
+            <!-- Attack Explanation Panel -->
+            {% if attack_explanation is not none %}
+            <div class="attack-panel">
+                <h5><i class="bi bi-exclamation-octagon"></i> Attack Vector Analysis</h5>
+                <p class="small mb-3">
+                    Risk Level:
+                    <span class="badge
+                        {% if preview.risk_level == 'Critical' %}bg-danger
+                        {% elif preview.risk_level == 'High' %}bg-warning text-dark
+                        {% elif preview.risk_level == 'Medium' %}bg-info text-dark
+                        {% else %}bg-success{% endif %}">
+                        {{ preview.risk_level }} ({{ preview.risk_percentage|int }}%)
+                    </span>
+                </p>
+
+                {% if attack_explanation is iterable and attack_explanation is not string %}
+                    {% for item in attack_explanation %}
+                    <div class="attack-item severity-{{ item.severity }}">
+                        <strong>{{ item.category }}</strong>
+                        <p class="mb-0 small" style="color: #bbb;">{{ item.explanation }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>{{ attack_explanation }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Link warning popup -->
+        <div class="link-warning-overlay" id="linkWarning">
+            <div class="link-warning-box">
+                <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 3rem;"></i>
+                <h4 class="mt-3 text-danger">Phishing Link Detected!</h4>
+                <p class="text-muted">In a real attack, clicking this link would take you to a malicious page designed to steal your credentials or install malware.</p>
+                <p class="small"><strong>Link target:</strong> <code id="linkTarget"></code></p>
+                <button class="btn btn-primary" onclick="document.getElementById('linkWarning').classList.remove('show')">
+                    I Understand
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if preview %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Intercept all links in the email body
+    var emailBody = document.getElementById('email-body-content');
+    if (emailBody) {
+        emailBody.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                var target = link.getAttribute('href') || link.textContent;
+                document.getElementById('linkTarget').textContent = target;
+                document.getElementById('linkWarning').classList.add('show');
+            });
+            link.style.cursor = 'pointer';
+            link.style.textDecoration = 'underline';
+            link.style.color = '#0d6efd';
+        });
+    }
+});
+</script>
+{% endif %}
+{% endblock %}
