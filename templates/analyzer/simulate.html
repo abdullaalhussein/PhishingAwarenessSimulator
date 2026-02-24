@@ -264,6 +264,89 @@
         100% { transform: rotate(0); }
     }
     .bell-ring { animation: ring-bell 0.8s ease; }
+
+    /* ===== Example Library ===== */
+    .example-library .card-header {
+        background: #1a1a2e;
+        color: #e0e0e0;
+        cursor: pointer;
+    }
+    .example-library .card-header:hover { background: #22223a; }
+    .example-card {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 16px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .example-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .example-card.difficulty-beginner { border-left: 4px solid #198754; }
+    .example-card.difficulty-intermediate { border-left: 4px solid #ffc107; }
+    .example-card.difficulty-advanced { border-left: 4px solid #dc3545; }
+    .difficulty-tabs .nav-link {
+        color: #6c757d;
+        font-weight: 600;
+        border: none;
+        border-bottom: 3px solid transparent;
+        border-radius: 0;
+        padding: 8px 16px;
+    }
+    .difficulty-tabs .nav-link.active-beginner { color: #198754; border-bottom-color: #198754; }
+    .difficulty-tabs .nav-link.active-intermediate { color: #856404; border-bottom-color: #ffc107; }
+    .difficulty-tabs .nav-link.active-advanced { color: #dc3545; border-bottom-color: #dc3545; }
+
+    /* ===== Beginner Guide ===== */
+    .guide-panel {
+        background: #f0f7ff;
+        border: 1px solid #b6d4fe;
+        border-radius: 10px;
+    }
+    .guide-panel .card-header {
+        background: #d0e7ff;
+        color: #0a58ca;
+        cursor: pointer;
+    }
+    .guide-panel .card-header:hover { background: #bdd8fc; }
+    .guide-step {
+        background: #fff;
+        border: 1px solid #d0e7ff;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+        position: relative;
+        padding-left: 56px;
+    }
+    .guide-step .step-number {
+        position: absolute;
+        left: 14px;
+        top: 14px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #0d6efd;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+    }
+    .guide-step h6 { margin-bottom: 6px; }
+    .red-flag-tag {
+        display: inline-block;
+        background: #fff3cd;
+        color: #664d03;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 10px;
+        margin-top: 6px;
+    }
 </style>
 {% endblock %}
 
@@ -277,6 +360,77 @@
             </a>
         </div>
         <p class="text-muted mb-4">Build a phishing scenario and see how it would look in a real email client.</p>
+
+        <!-- ===== EXAMPLE LIBRARY ===== -->
+        <div class="card example-library mb-4" id="exampleLibrary">
+            <div class="card-header d-flex align-items-center justify-content-between" id="exampleLibraryToggle">
+                <span><i class="bi bi-grid-3x3-gap-fill me-2"></i><strong>Example Scenarios</strong></span>
+                <i class="bi bi-chevron-down" id="exampleChevron"></i>
+            </div>
+            <div class="card-body {{ '' if user_role == 'instructor' else 'd-none' }}" id="exampleLibraryBody">
+                <ul class="nav difficulty-tabs mb-3" id="difficultyTabs">
+                    <li class="nav-item">
+                        <button class="nav-link active-beginner active" data-difficulty="Beginner" type="button">Beginner</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-difficulty="Intermediate" type="button">Intermediate</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-difficulty="Advanced" type="button">Advanced</button>
+                    </li>
+                </ul>
+                <div class="row g-3" id="exampleGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        {% if user_role == 'student' %}
+        <!-- ===== BEGINNER GUIDE ===== -->
+        <div class="card guide-panel mb-4" id="beginnerGuide">
+            <div class="card-header d-flex align-items-center justify-content-between" id="guideToggle">
+                <span><i class="bi bi-lightbulb-fill me-2"></i><strong>How to Build a Phishing Email</strong></span>
+                <i class="bi bi-chevron-down" id="guideChevron"></i>
+            </div>
+            <div class="card-body" id="guideBody">
+                <div class="guide-step">
+                    <div class="step-number">1</div>
+                    <h6>Pick a Sender Identity</h6>
+                    <p class="text-muted small mb-1">Use a fake organization name and a lookalike domain. Try substituting letters with numbers (<code>paypa1.com</code>, <code>amaz0n.com</code>) or use uncommon TLDs (<code>.xyz</code>, <code>.top</code>, <code>.co</code>).</p>
+                    <span class="red-flag-tag"><i class="bi bi-flag-fill me-1"></i>Suspicious Sender Domain</span>
+                </div>
+                <div class="guide-step">
+                    <div class="step-number">2</div>
+                    <h6>Choose Your Target</h6>
+                    <p class="text-muted small mb-1">Enter a realistic victim email address. Think about who would be vulnerable to this type of attack — employees, students, or specific departments like accounting.</p>
+                    <span class="red-flag-tag"><i class="bi bi-flag-fill me-1"></i>Targeted Recipient</span>
+                </div>
+                <div class="guide-step">
+                    <div class="step-number">3</div>
+                    <h6>Write an Urgent Subject Line</h6>
+                    <p class="text-muted small mb-1">Create pressure with phrases like "URGENT:", "Action Required:", or "Your account will be suspended". Use caps and punctuation sparingly for realism.</p>
+                    <span class="red-flag-tag"><i class="bi bi-flag-fill me-1"></i>Urgency &amp; Pressure Tactics</span>
+                </div>
+                <div class="guide-step">
+                    <div class="step-number">4</div>
+                    <h6>Craft the Email Body</h6>
+                    <p class="text-muted small mb-1">Include a generic greeting, urgency or threats, a call-to-action link (<code>&lt;a href="http://evil.com"&gt;Click here&lt;/a&gt;</code>), and a fake signature. HTML tags like <code>&lt;b&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;ul&gt;</code> are supported.</p>
+                    <span class="red-flag-tag"><i class="bi bi-flag-fill me-1"></i>Suspicious Links &amp; Content</span>
+                </div>
+                <div class="guide-step">
+                    <div class="step-number">5</div>
+                    <h6>Send &amp; Analyze</h6>
+                    <p class="text-muted small mb-1">Click "Send &amp; Simulate" to watch the SMTP delivery animation, see how the email looks in an inbox, and review the attack vectors the system detects.</p>
+                    <span class="red-flag-tag"><i class="bi bi-flag-fill me-1"></i>Detection &amp; Analysis</span>
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-primary" type="button" id="tryItNowBtn">
+                        <i class="bi bi-lightning-fill me-1"></i>Try it now! — Load a beginner example
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
         <!-- ===== BUILD FORM ===== -->
         <div class="card mb-4" id="buildForm">
@@ -470,6 +624,122 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Examples data & library/guide logic (always present) -->
+<script id="examplesData" type="application/json">{{ examples|safe }}</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var examples = JSON.parse(document.getElementById('examplesData').textContent);
+    var currentDifficulty = 'Beginner';
+    var grid = document.getElementById('exampleGrid');
+    var libraryBody = document.getElementById('exampleLibraryBody');
+    var libraryToggle = document.getElementById('exampleLibraryToggle');
+    var chevron = document.getElementById('exampleChevron');
+
+    // ── Render example cards for a given difficulty ──
+    function renderExamples(difficulty) {
+        grid.innerHTML = '';
+        examples.forEach(function(ex, idx) {
+            if (ex.difficulty !== difficulty) return;
+            var diffClass = 'difficulty-' + ex.difficulty.toLowerCase();
+            var badgeBg = ex.difficulty === 'Beginner' ? 'bg-success' :
+                          ex.difficulty === 'Intermediate' ? 'bg-warning text-dark' : 'bg-danger';
+            var col = document.createElement('div');
+            col.className = 'col-md-6 col-lg-4';
+            col.innerHTML =
+                '<div class="example-card ' + diffClass + '">' +
+                    '<div class="mb-2"><span class="badge ' + badgeBg + '">' + ex.difficulty + '</span></div>' +
+                    '<h6 class="mb-1">' + ex.title + '</h6>' +
+                    '<p class="text-muted small flex-grow-1">' + ex.description + '</p>' +
+                    '<button class="btn btn-sm btn-outline-primary mt-auto load-example-btn" data-index="' + idx + '">' +
+                        '<i class="bi bi-box-arrow-in-down me-1"></i>Load Example' +
+                    '</button>' +
+                '</div>';
+            grid.appendChild(col);
+        });
+    }
+
+    // ── Load an example into the form fields ──
+    function loadExample(index) {
+        var ex = examples[index];
+        if (!ex) return;
+        document.getElementById('from_name').value = ex.from_name;
+        document.getElementById('from_email').value = ex.from_email;
+        document.getElementById('to_email').value = ex.to_email;
+        document.getElementById('subject').value = ex.subject;
+        document.getElementById('body').value = ex.body;
+
+        // Expand form if it was collapsed after POST
+        var formCardBody = document.querySelector('#buildForm > .card-body');
+        if (formCardBody && formCardBody.style.display === 'none') {
+            formCardBody.style.display = '';
+        }
+
+        // Smooth-scroll to the form
+        document.getElementById('buildForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // ── Difficulty tab switching ──
+    var tabs = document.querySelectorAll('#difficultyTabs .nav-link');
+    tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            tabs.forEach(function(t) {
+                t.classList.remove('active', 'active-beginner', 'active-intermediate', 'active-advanced');
+            });
+            var diff = tab.getAttribute('data-difficulty');
+            tab.classList.add('active', 'active-' + diff.toLowerCase());
+            currentDifficulty = diff;
+            renderExamples(diff);
+        });
+    });
+
+    // ── Collapse / expand example library ──
+    libraryToggle.addEventListener('click', function() {
+        libraryBody.classList.toggle('d-none');
+        chevron.classList.toggle('bi-chevron-down');
+        chevron.classList.toggle('bi-chevron-up');
+    });
+
+    // ── Delegate clicks on "Load Example" buttons ──
+    grid.addEventListener('click', function(e) {
+        var btn = e.target.closest('.load-example-btn');
+        if (btn) {
+            loadExample(parseInt(btn.getAttribute('data-index'), 10));
+        }
+    });
+
+    // ── Beginner guide toggle (students only) ──
+    var guideToggle = document.getElementById('guideToggle');
+    var guideBody = document.getElementById('guideBody');
+    var guideChevron = document.getElementById('guideChevron');
+    if (guideToggle && guideBody) {
+        guideToggle.addEventListener('click', function() {
+            guideBody.classList.toggle('d-none');
+            if (guideChevron) {
+                guideChevron.classList.toggle('bi-chevron-down');
+                guideChevron.classList.toggle('bi-chevron-up');
+            }
+        });
+    }
+
+    // ── "Try it now!" button — load first beginner example ──
+    var tryBtn = document.getElementById('tryItNowBtn');
+    if (tryBtn) {
+        tryBtn.addEventListener('click', function() {
+            // Find the first beginner example
+            for (var i = 0; i < examples.length; i++) {
+                if (examples[i].difficulty === 'Beginner') {
+                    loadExample(i);
+                    break;
+                }
+            }
+        });
+    }
+
+    // Initial render
+    renderExamples(currentDifficulty);
+});
+</script>
+
 {% if preview %}
 <script id="networkLogData" type="application/json">{{ network_log|safe }}</script>
 <script>

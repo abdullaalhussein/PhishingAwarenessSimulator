@@ -7,6 +7,7 @@ from flask_login import login_required, current_user
 from simulation import simulation_bp
 from models import db, SimulationSession
 from engine.scenarios import load_scenarios_by_difficulty, get_scenario_by_id
+from engine.email_analyzer import analyze_email, generate_attack_explanation
 from engine.simulator import (
     start_simulation,
     get_simulation_state,
@@ -14,6 +15,7 @@ from engine.simulator import (
     record_red_flags,
     complete_simulation,
 )
+from analyzer.routes import generate_network_log
 
 
 @simulation_bp.route('/simulate/<difficulty>')
@@ -99,9 +101,42 @@ def submit_action(session_id):
 
     action_result = record_action(session_id, action_id, state['scenario'])
 
+    # ── Real-world analysis based on scenario content ─────────────
+    rc = state.get('rendered_content', {})
+    scenario = state['scenario']
+    analysis = None
+    attack_explanation = None
+    network_log = None
+
+    if rc.get('type') == 'email':
+        from_email = rc.get('from_email', '')
+        from_name = rc.get('from_name', '')
+        to_email = rc.get('to', '')
+        subject = rc.get('subject', '')
+        body = rc.get('body_text', '') or str(rc.get('body_html', ''))
+
+        analysis = analyze_email(from_email, from_name, subject, body)
+        attack_explanation = generate_attack_explanation(analysis['indicators'])
+        network_log = generate_network_log(from_name, from_email, to_email, subject)
+
+    elif rc.get('type') == 'sms':
+        sender = rc.get('sender', '')
+        message = rc.get('message_text', '')
+        analysis = analyze_email(sender, sender, '', message)
+        attack_explanation = generate_attack_explanation(analysis['indicators'])
+
+    elif rc.get('type') == 'website':
+        url = rc.get('url', '')
+        page_html = str(rc.get('page_html', ''))
+        analysis = analyze_email(url, '', rc.get('page_title', ''), page_html)
+        attack_explanation = generate_attack_explanation(analysis['indicators'])
+
     return render_template('simulation/action_feedback.html',
                            state=state,
-                           action_result=action_result)
+                           action_result=action_result,
+                           analysis=analysis,
+                           attack_explanation=attack_explanation,
+                           network_log=json.dumps(network_log) if network_log else None)
 
 
 @simulation_bp.route('/simulate/session/<int:session_id>/red-flags', methods=['POST'])

@@ -4,6 +4,330 @@
 
 {% block extra_css %}
 <link href="{{ url_for('static', filename='css/simulation.css') }}" rel="stylesheet">
+<style>
+    /* ===== Real-World Flow Styles ===== */
+
+    /* Delivery Progress Bar */
+    .delivery-progress {
+        display: flex;
+        gap: 0;
+        margin-bottom: 24px;
+        background: #1a1a2e;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .delivery-step {
+        flex: 1;
+        text-align: center;
+        padding: 14px 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #555;
+        background: #0d1117;
+        border-right: 1px solid #1a1a2e;
+        transition: all 0.4s ease;
+        position: relative;
+    }
+    .delivery-step:last-child { border-right: none; }
+    .delivery-step i { display: block; font-size: 1.3rem; margin-bottom: 4px; }
+    .delivery-step.active {
+        color: #58a6ff;
+        background: #161b22;
+    }
+    .delivery-step.active i { animation: pulse 1.2s infinite; }
+    .delivery-step.done {
+        color: #3fb950;
+        background: #0d1117;
+    }
+
+    /* Network Terminal */
+    .network-terminal {
+        background: #0d1117;
+        color: #c9d1d9;
+        font-family: 'Courier New', 'Consolas', monospace;
+        font-size: 13px;
+        padding: 16px;
+        border-radius: 10px;
+        height: 380px;
+        overflow-y: auto;
+        border: 1px solid #30363d;
+        line-height: 1.6;
+    }
+    .network-terminal::-webkit-scrollbar { width: 6px; }
+    .network-terminal::-webkit-scrollbar-track { background: #0d1117; }
+    .network-terminal::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+    .network-line { white-space: pre-wrap; word-break: break-all; }
+    .network-line.client { color: #58a6ff; }
+    .network-line.server { color: #3fb950; }
+    .network-line.system { color: #d29922; }
+    .network-cursor {
+        display: inline-block;
+        width: 8px;
+        height: 14px;
+        background: #c9d1d9;
+        animation: blink 1s step-end infinite;
+        vertical-align: middle;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* Stage Visual Panel */
+    .stage-visual {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        height: 380px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: #c9d1d9;
+        text-align: center;
+        padding: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+    .stage-visual .stage-icon {
+        font-size: 3.5rem;
+        margin-bottom: 16px;
+        transition: all 0.4s ease;
+    }
+    .stage-visual .stage-label {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #8b949e;
+    }
+    .stage-visual .stage-detail {
+        font-size: 0.85rem;
+        color: #484f58;
+        margin-top: 6px;
+    }
+    .stage-visual.dns .stage-icon { color: #d29922; }
+    .stage-visual.smtp .stage-icon { color: #58a6ff; }
+    .stage-visual.data .stage-icon { color: #bc8cff; }
+    .stage-visual.done .stage-icon { color: #3fb950; }
+
+    @keyframes fly-envelope {
+        0% { transform: translateX(-60px) translateY(20px) scale(0.8); opacity: 0; }
+        30% { transform: translateX(0) translateY(-10px) scale(1); opacity: 1; }
+        70% { transform: translateX(40px) translateY(-5px) scale(1); opacity: 1; }
+        100% { transform: translateX(60px) translateY(20px) scale(0.8); opacity: 0; }
+    }
+    .envelope-fly { animation: fly-envelope 2s ease-in-out infinite; }
+
+    @keyframes radar-ping {
+        0% { transform: scale(1); opacity: 0.6; }
+        100% { transform: scale(2.5); opacity: 0; }
+    }
+    .radar-ring {
+        position: absolute;
+        width: 80px; height: 80px;
+        border: 2px solid #58a6ff;
+        border-radius: 50%;
+        animation: radar-ping 1.5s ease-out infinite;
+    }
+
+    /* Inbox Mockup */
+    .inbox-mockup {
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .inbox-toolbar {
+        background: #f6f8fa;
+        border-bottom: 1px solid #e1e4e8;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+    }
+    .inbox-toolbar i { color: #666; }
+    .inbox-row {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 14px;
+        color: #666;
+        transition: background 0.2s;
+    }
+    .inbox-row:last-child { border-bottom: none; }
+    .inbox-row .inbox-sender {
+        width: 180px;
+        font-weight: 400;
+        color: #555;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .inbox-row .inbox-subject {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .inbox-row .inbox-time {
+        width: 70px;
+        text-align: right;
+        font-size: 12px;
+        color: #999;
+    }
+    .inbox-row.new-email {
+        background: #f0f6ff;
+        font-weight: 600;
+        color: #1a1a1a;
+        cursor: pointer;
+        border-left: 4px solid #0d6efd;
+    }
+    .inbox-row.new-email:hover { background: #e3edfc; }
+    .inbox-row.new-email .inbox-sender { font-weight: 700; color: #1a1a1a; }
+    .new-badge {
+        display: inline-block;
+        background: #0d6efd;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 10px;
+        margin-right: 8px;
+        text-transform: uppercase;
+    }
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .inbox-notification { animation: slideDown 0.5s ease-out; }
+
+    /* Notification bell */
+    @keyframes ring-bell {
+        0% { transform: rotate(0); }
+        10% { transform: rotate(14deg); }
+        20% { transform: rotate(-14deg); }
+        30% { transform: rotate(10deg); }
+        40% { transform: rotate(-10deg); }
+        50% { transform: rotate(6deg); }
+        60% { transform: rotate(-4deg); }
+        70% { transform: rotate(2deg); }
+        80% { transform: rotate(-1deg); }
+        100% { transform: rotate(0); }
+    }
+    .bell-ring { animation: ring-bell 0.8s ease; }
+
+    /* Link Warning Overlay */
+    .link-warning-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+    .link-warning-overlay.show { display: flex; }
+    .link-warning-box {
+        background: #fff;
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 450px;
+        text-align: center;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+
+    /* Section transitions */
+    .rw-section { display: none; }
+    .rw-section.visible { display: block; animation: fadeIn 0.5s ease-out; }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Risk Circle */
+    .risk-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+        font-weight: 700;
+    }
+    .risk-critical { background: #f8d7da; color: #842029; border: 5px solid #dc3545; }
+    .risk-high { background: #fff3cd; color: #664d03; border: 5px solid #ffc107; }
+    .risk-medium { background: #cff4fc; color: #055160; border: 5px solid #0dcaf0; }
+    .risk-low { background: #d1e7dd; color: #0f5132; border: 5px solid #198754; }
+
+    /* Indicator Items */
+    .indicator-item {
+        padding: 12px 16px;
+        background: #fff;
+        margin-bottom: 10px;
+        border-radius: 0 8px 8px 0;
+    }
+    .indicator-item.severity-high { border-left: 4px solid #dc3545; }
+    .indicator-item.severity-medium { border-left: 4px solid #ffc107; }
+    .indicator-item.severity-low { border-left: 4px solid #0dcaf0; }
+    .severity-badge {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    /* Attack Panel */
+    .attack-panel {
+        background: #1a1a2e;
+        color: #e0e0e0;
+        border-radius: 10px;
+        padding: 24px;
+    }
+    .attack-panel h5 { color: #ff6b6b; }
+    .attack-item {
+        padding: 12px 16px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .attack-item.severity-high { border-left: 4px solid #dc3545; }
+    .attack-item.severity-medium { border-left: 4px solid #ffc107; }
+    .attack-item.severity-low { border-left: 4px solid #0dcaf0; }
+
+    /* SMS real-world mockup */
+    .sms-realworld-card {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        padding: 24px;
+        color: #c9d1d9;
+        text-align: center;
+    }
+    .sms-realworld-card .stage-icon {
+        font-size: 3rem;
+        color: #3fb950;
+        margin-bottom: 12px;
+    }
+
+    /* Website real-world mockup */
+    .web-realworld-card {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        padding: 24px;
+        color: #c9d1d9;
+        text-align: center;
+    }
+    .web-realworld-card .stage-icon {
+        font-size: 3rem;
+        color: #d29922;
+        margin-bottom: 12px;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -37,7 +361,7 @@
 
 <div class="sim-content fade-in">
 
-<!-- Action Feedback -->
+<!-- ===== Action Feedback ===== -->
 {% if action_result.is_correct %}
 <div class="alert alert-success d-flex align-items-start gap-3">
     <i class="bi bi-check-circle-fill fs-4"></i>
@@ -56,7 +380,263 @@
 </div>
 {% endif %}
 
-<!-- Red Flag Identification -->
+<!-- ===== REAL-WORLD FLOW ===== -->
+{% if analysis %}
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-dark text-white d-flex align-items-center">
+        <i class="bi bi-globe2 me-2"></i>
+        <strong>What Happens in the Real World</strong>
+        <span class="badge bg-secondary ms-auto">{{ state.scenario.type|upper }} Scenario</span>
+    </div>
+    <div class="card-body p-0">
+
+{% set rc = state.rendered_content %}
+
+{% if rc.type == 'email' and network_log %}
+        <!-- ── EMAIL: SMTP Delivery Animation ── -->
+        <div class="p-3" id="rwNetworkSection">
+            <h6 class="mb-3"><i class="bi bi-hdd-network me-1"></i> SMTP Delivery Simulation</h6>
+
+            <!-- Delivery Progress Bar -->
+            <div class="delivery-progress" id="rwDeliveryProgress">
+                <div class="delivery-step" id="rw-step-dns" data-stage="dns">
+                    <i class="bi bi-globe2"></i> DNS Lookup
+                </div>
+                <div class="delivery-step" id="rw-step-smtp" data-stage="smtp">
+                    <i class="bi bi-hdd-network"></i> SMTP Connect
+                </div>
+                <div class="delivery-step" id="rw-step-data" data-stage="data">
+                    <i class="bi bi-file-earmark-arrow-up"></i> Transmit Data
+                </div>
+                <div class="delivery-step" id="rw-step-done" data-stage="done">
+                    <i class="bi bi-check-circle"></i> Delivered
+                </div>
+            </div>
+
+            <!-- Two-column: Terminal + Stage Visual -->
+            <div class="row g-3">
+                <div class="col-md-7">
+                    <div class="network-terminal" id="rwNetworkTerminal">
+                        <span class="network-cursor" id="rwTerminalCursor"></span>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="stage-visual" id="rwStageVisual">
+                        <div class="stage-icon"><i class="bi bi-hourglass-split"></i></div>
+                        <div class="stage-label">Waiting to start...</div>
+                        <div class="stage-detail">Preparing delivery simulation</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── EMAIL: Inbox View ── -->
+        <div id="rwInboxSection" class="rw-section p-3">
+            <div class="d-flex align-items-center mb-3">
+                <h6 class="mb-0 me-2"><i class="bi bi-bell-fill bell-ring text-primary"></i> New Email Received</h6>
+            </div>
+            <div class="inbox-mockup">
+                <div class="inbox-toolbar">
+                    <i class="bi bi-envelope"></i> Inbox
+                    <span class="text-muted fw-normal" style="font-size:12px; margin-left:auto;">3 messages</span>
+                </div>
+                <!-- Phishing email (new) -->
+                <div class="inbox-row new-email inbox-notification" id="rwPhishingInboxRow">
+                    <div class="inbox-sender"><span class="new-badge">New</span>{{ rc.from_name }}</div>
+                    <div class="inbox-subject">{{ rc.subject }}</div>
+                    <div class="inbox-time">Just now</div>
+                </div>
+                <!-- Fake existing emails -->
+                <div class="inbox-row">
+                    <div class="inbox-sender">Google Security</div>
+                    <div class="inbox-subject">Your sign-in activity — New device detected</div>
+                    <div class="inbox-time">2h ago</div>
+                </div>
+                <div class="inbox-row">
+                    <div class="inbox-sender">Canvas LMS</div>
+                    <div class="inbox-subject">Assignment "Week 8 Lab" graded</div>
+                    <div class="inbox-time">5h ago</div>
+                </div>
+            </div>
+            <p class="text-muted small mt-2"><i class="bi bi-hand-index"></i> Click the new email to open it.</p>
+        </div>
+
+        <!-- ── EMAIL: Full Email Preview ── -->
+        <div id="rwEmailSection" class="rw-section p-3">
+            <h6 class="mb-3"><i class="bi bi-envelope-open"></i> Email Preview</h6>
+            <div class="email-client">
+                <div class="email-toolbar">
+                    <span class="email-toolbar-btn"><i class="bi bi-arrow-90deg-left"></i> Reply</span>
+                    <span class="email-toolbar-btn"><i class="bi bi-arrow-90deg-right"></i> Forward</span>
+                    <span class="email-toolbar-btn"><i class="bi bi-trash"></i> Delete</span>
+                    <span class="email-toolbar-btn"><i class="bi bi-flag"></i> Flag</span>
+                </div>
+                <div class="email-header-section">
+                    <div class="email-subject-line">{{ rc.subject }}</div>
+                    <div class="email-sender-row">
+                        <div class="email-avatar">{{ rc.from_name[0]|upper }}</div>
+                        <div class="email-sender-info">
+                            <div class="email-sender-name">{{ rc.from_name }}</div>
+                            <div class="email-sender-addr">&lt;{{ rc.from_email }}&gt;</div>
+                            <div class="email-to-line">To: {{ rc.to }}</div>
+                        </div>
+                        <div class="email-timestamp">Just now</div>
+                    </div>
+                </div>
+                <div class="email-body-section" id="rw-email-body-content">
+                    {{ rc.body_html }}
+                </div>
+            </div>
+        </div>
+
+{% elif rc.type == 'sms' %}
+        <!-- ── SMS: Real-World Delivery ── -->
+        <div class="p-3">
+            <div class="sms-realworld-card mb-3">
+                <div class="stage-icon"><i class="bi bi-phone-vibrate"></i></div>
+                <div class="stage-label mb-2">SMS Delivered to Victim's Phone</div>
+                <div class="stage-detail">Message from <strong>{{ rc.sender }}</strong> arrived instantly via cellular network</div>
+            </div>
+
+            <!-- Re-show the SMS for context -->
+            <div class="phone-frame mb-3" style="max-width: 360px; margin: 0 auto;">
+                <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+                <div class="phone-status-bar">
+                    <span>9:41</span>
+                    <span><i class="bi bi-wifi"></i> <i class="bi bi-battery-full"></i></span>
+                </div>
+                <div class="sms-screen">
+                    <div class="sms-contact-header">
+                        <div class="sms-contact-avatar"><i class="bi bi-person"></i></div>
+                        <div class="sms-contact-name">{{ rc.sender }}</div>
+                    </div>
+                    <div class="sms-bubble">{{ rc.message_text }}</div>
+                    <div class="sms-time">Today 9:41 AM</div>
+                </div>
+                <div class="phone-home-bar"><div class="phone-home-indicator"></div></div>
+            </div>
+        </div>
+
+{% elif rc.type == 'website' %}
+        <!-- ── Website: Real-World View ── -->
+        <div class="p-3">
+            <div class="web-realworld-card mb-3">
+                <div class="stage-icon"><i class="bi bi-browser-chrome"></i></div>
+                <div class="stage-label mb-2">Victim Visits Phishing Website</div>
+                <div class="stage-detail">Browser navigates to <code>{{ rc.url }}</code></div>
+            </div>
+
+            <!-- Re-show the website for context -->
+            <div class="browser-frame mb-3">
+                <div class="browser-title-bar">
+                    <div class="browser-dots">
+                        <span class="browser-dot red"></span>
+                        <span class="browser-dot yellow"></span>
+                        <span class="browser-dot green"></span>
+                    </div>
+                    <div class="browser-tab">{{ rc.page_title }}</div>
+                </div>
+                <div class="browser-address-bar">
+                    <div class="browser-nav-btns">
+                        <i class="bi bi-chevron-left"></i>
+                        <i class="bi bi-chevron-right"></i>
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </div>
+                    <div class="browser-url-box">
+                        {% if 'https' in rc.url %}
+                        <span class="lock-icon"><i class="bi bi-lock"></i></span>
+                        {% else %}
+                        <span class="lock-icon"><i class="bi bi-unlock"></i></span>
+                        {% endif %}
+                        <span>{{ rc.url }}</span>
+                    </div>
+                </div>
+                <div class="browser-page-content">
+                    {{ rc.page_html }}
+                </div>
+            </div>
+        </div>
+{% endif %}
+
+        <!-- ── Risk Analysis (all types) ── -->
+        <div id="rwAnalysisSection" class="rw-section p-3 {% if rc.type != 'email' or not network_log %}visible{% endif %}">
+            <h6 class="mb-3"><i class="bi bi-shield-exclamation"></i> Phishing Risk Analysis</h6>
+
+            <div class="text-center mb-3">
+                <div class="risk-circle risk-{{ analysis.risk_level|lower }}">
+                    <span style="font-size: 2rem; line-height: 1;">{{ analysis.risk_percentage|int }}%</span>
+                    <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px;">Risk</span>
+                </div>
+                <span class="badge fs-6
+                    {% if analysis.risk_level == 'Critical' %}bg-danger
+                    {% elif analysis.risk_level == 'High' %}bg-warning text-dark
+                    {% elif analysis.risk_level == 'Medium' %}bg-info text-dark
+                    {% else %}bg-success{% endif %}">
+                    {{ analysis.risk_level }} Risk
+                </span>
+            </div>
+
+            {% if analysis.indicators %}
+            <h6 class="mb-2"><i class="bi bi-exclamation-triangle"></i> Detected Indicators ({{ analysis.indicators|length }})</h6>
+            {% for indicator in analysis.indicators %}
+            <div class="indicator-item severity-{{ indicator.severity }}">
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                    <strong>{{ indicator.category }}</strong>
+                    <span class="severity-badge
+                        {% if indicator.severity == 'high' %}bg-danger text-white
+                        {% elif indicator.severity == 'medium' %}bg-warning text-dark
+                        {% else %}bg-info text-dark{% endif %}">
+                        {{ indicator.severity }}
+                    </span>
+                </div>
+                <p class="mb-1 text-muted small">{{ indicator.description }}</p>
+                <code class="small">{{ indicator.evidence }}</code>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle"></i> No strong indicators detected — but this scenario may use advanced social engineering!
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ── Attack Vector Analysis (all types) ── -->
+        {% if attack_explanation is iterable and attack_explanation is not string and attack_explanation|length > 0 %}
+        <div id="rwAttackSection" class="rw-section p-3 {% if rc.type != 'email' or not network_log %}visible{% endif %}">
+            <div class="attack-panel">
+                <h5><i class="bi bi-exclamation-octagon"></i> Attack Vector Analysis</h5>
+                <p class="small mb-3 text-muted">Here's what would happen if the victim fell for this attack:</p>
+                {% for item in attack_explanation %}
+                <div class="attack-item severity-{{ item.severity }}">
+                    <strong>{{ item.category }}</strong>
+                    <p class="mb-0 small" style="color: #bbb;">{{ item.explanation }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>{# .card-body #}
+</div>{# .card #}
+
+<!-- Link warning popup (for email preview) -->
+{% if rc.type == 'email' %}
+<div class="link-warning-overlay" id="rwLinkWarning">
+    <div class="link-warning-box">
+        <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 3rem;"></i>
+        <h4 class="mt-3 text-danger">Phishing Link Detected!</h4>
+        <p class="text-muted">In a real attack, clicking this link would take you to a malicious page designed to steal your credentials or install malware.</p>
+        <p class="small"><strong>Link target:</strong> <code id="rwLinkTarget"></code></p>
+        <button class="btn btn-primary" onclick="document.getElementById('rwLinkWarning').classList.remove('show')">
+            I Understand
+        </button>
+    </div>
+</div>
+{% endif %}
+
+{% endif %}{# analysis #}
+
+<!-- ===== Red Flag Identification ===== -->
 <h5 class="mt-4 mb-2"><i class="bi bi-flag"></i> Now, Identify the Red Flags</h5>
 <p class="text-muted mb-3">Think back to what you saw. Select all the warning signs you noticed in the {{ state.scenario.type }}.</p>
 
@@ -81,4 +661,155 @@
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
+
+{% if network_log %}
+<!-- SMTP Delivery Animation (email scenarios only) -->
+<script id="rwNetworkLogData" type="application/json">{{ network_log|safe }}</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var networkLog = JSON.parse(document.getElementById('rwNetworkLogData').textContent);
+    var terminal = document.getElementById('rwNetworkTerminal');
+    var cursor = document.getElementById('rwTerminalCursor');
+    var stageVisual = document.getElementById('rwStageVisual');
+    var currentStage = null;
+
+    var stageConfig = {
+        dns: {
+            icon: 'bi-globe2',
+            label: 'DNS Resolution',
+            detail: 'Looking up mail server address...',
+            animClass: ''
+        },
+        smtp: {
+            icon: 'bi-hdd-network',
+            label: 'SMTP Handshake',
+            detail: 'Establishing connection to mail server...',
+            animClass: ''
+        },
+        data: {
+            icon: 'bi-envelope-arrow-up',
+            label: 'Transmitting Email',
+            detail: 'Sending headers and body data...',
+            animClass: 'envelope-fly'
+        },
+        done: {
+            icon: 'bi-mailbox2',
+            label: 'Delivered!',
+            detail: 'Email arrived in victim\'s inbox',
+            animClass: ''
+        }
+    };
+
+    function setStageVisual(stage) {
+        var cfg = stageConfig[stage];
+        if (!cfg) return;
+        stageVisual.className = 'stage-visual ' + stage;
+        var html = '';
+        if (stage === 'smtp') html += '<div class="radar-ring"></div>';
+        html += '<div class="stage-icon ' + cfg.animClass + '"><i class="bi ' + cfg.icon + '"></i></div>';
+        html += '<div class="stage-label">' + cfg.label + '</div>';
+        html += '<div class="stage-detail">' + cfg.detail + '</div>';
+        stageVisual.innerHTML = html;
+    }
+
+    function setProgressStep(stage) {
+        var steps = document.querySelectorAll('#rwDeliveryProgress .delivery-step');
+        var stages = ['dns', 'smtp', 'data', 'done'];
+        var targetIdx = stages.indexOf(stage);
+        steps.forEach(function(step, idx) {
+            step.classList.remove('active', 'done');
+            if (idx < targetIdx) step.classList.add('done');
+            else if (idx === targetIdx) step.classList.add('active');
+        });
+    }
+
+    function addLine(entry) {
+        var line = document.createElement('div');
+        line.className = 'network-line ' + entry.direction;
+        var prefix = '';
+        if (entry.direction === 'client') prefix = 'C: ';
+        else if (entry.direction === 'server') prefix = 'S: ';
+        line.textContent = prefix + entry.line;
+        terminal.insertBefore(line, cursor);
+        terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function playAnimation(index) {
+        if (index >= networkLog.length) {
+            onAnimationComplete();
+            return;
+        }
+        var entry = networkLog[index];
+        if (entry.stage !== currentStage) {
+            currentStage = entry.stage;
+            setProgressStep(currentStage);
+            setStageVisual(currentStage);
+        }
+        addLine(entry);
+        setTimeout(function() { playAnimation(index + 1); }, entry.delay);
+    }
+
+    function onAnimationComplete() {
+        document.getElementById('rw-step-done').classList.remove('active');
+        document.getElementById('rw-step-done').classList.add('done');
+        if (cursor) cursor.style.display = 'none';
+
+        stageVisual.className = 'stage-visual done';
+        stageVisual.innerHTML =
+            '<div class="stage-icon" style="color:#3fb950;"><i class="bi bi-check-circle-fill"></i></div>' +
+            '<div class="stage-label" style="color:#3fb950;">Delivery Complete</div>' +
+            '<div class="stage-detail">Check the inbox below</div>';
+
+        // Show inbox
+        setTimeout(function() {
+            document.getElementById('rwInboxSection').classList.add('visible');
+            document.getElementById('rwInboxSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 800);
+    }
+
+    // Inbox row click → open email preview
+    var inboxRow = document.getElementById('rwPhishingInboxRow');
+    if (inboxRow) {
+        inboxRow.addEventListener('click', function() {
+            document.getElementById('rwInboxSection').style.display = 'none';
+            document.getElementById('rwEmailSection').classList.add('visible');
+            document.getElementById('rwEmailSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setupLinkInterception();
+
+            // After a moment, reveal the analysis and attack panels
+            setTimeout(function() {
+                var analysisSection = document.getElementById('rwAnalysisSection');
+                var attackSection = document.getElementById('rwAttackSection');
+                if (analysisSection) analysisSection.classList.add('visible');
+                if (attackSection) attackSection.classList.add('visible');
+                if (analysisSection) {
+                    analysisSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 1000);
+        });
+    }
+
+    // Link interception in email body
+    function setupLinkInterception() {
+        var emailBody = document.getElementById('rw-email-body-content');
+        if (emailBody) {
+            emailBody.querySelectorAll('a').forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var target = link.getAttribute('href') || link.textContent;
+                    document.getElementById('rwLinkTarget').textContent = target;
+                    document.getElementById('rwLinkWarning').classList.add('show');
+                });
+                link.style.cursor = 'pointer';
+                link.style.textDecoration = 'underline';
+                link.style.color = '#0d6efd';
+            });
+        }
+    }
+
+    // Start animation
+    setTimeout(function() { playAnimation(0); }, 500);
+});
+</script>
+{% endif %}
 {% endblock %}
